@@ -9,15 +9,8 @@
 @testable import GureumCore
 import Hangul
 import InputMethodKit
+import UserNotifications
 import XCTest
-
-private var lastNotification: NSUserNotification!
-
-extension NSUserNotificationCenter {
-    func deliver(_ notification: NSUserNotification) {
-        lastNotification = notification
-    }
-}
 
 class GureumTests: XCTestCase {
     static let domainName = "org.youknowone.Gureum.test"
@@ -56,7 +49,10 @@ class GureumTests: XCTestCase {
         XCTAssertTrue(loaded)
     }
 
-    func testNotifyUpdate() {
+    func testNotifyUpdate() throws {
+        guard #available(macOS 10.14, *) else {
+            throw XCTSkip("UserNotifications는 macOS 10.14 이상에서만 사용 가능")
+        }
         let data = """
         {
             "version": "1.10.0",
@@ -67,9 +63,9 @@ class GureumTests: XCTestCase {
         let update = try! JSONDecoder().decode(UpdateManager.UpdateInfo.self, from: data!)
 
         let versionInfo = UpdateManager.VersionInfo(update: update, experimental: true)
-        UpdateManager.notifyUpdate(info: versionInfo)
-        XCTAssertEqual("최신 버전: 1.10.0 현재 버전: \(Bundle.main.version ?? "-")\nMojave 대응을 포함한 대형 업데이트", lastNotification.informativeText)
-        XCTAssertEqual(["url": "https://github.com/gureum/gureum/releases/tag/1.10.0"], lastNotification.userInfo as! [String: String])
+        let content = UpdateManager.updateNotificationContent(info: versionInfo)
+        XCTAssertEqual("최신 버전: 1.10.0 현재 버전: \(Bundle.main.version ?? "-")\nMojave 대응을 포함한 대형 업데이트", content.body)
+        XCTAssertEqual(["url": "https://github.com/gureum/gureum/releases/tag/1.10.0"], content.userInfo as! [String: String])
     }
 
     func testLayoutChange() {

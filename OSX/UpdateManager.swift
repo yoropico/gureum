@@ -9,6 +9,13 @@
 import Alamofire
 import Foundation
 import GureumCore
+import UserNotifications
+
+/// 업데이트 알림에 사용하는 `UNNotificationCategory` 식별자.
+/// 카테고리 등록(`GureumAppDelegate`)과 알림 컨텐츠 생성(`UpdateManager`)이 공유한다.
+let gureumUpdateNotificationCategoryIdentifier = "Gureum.update"
+/// 업데이트 알림의 "업데이트" 액션 버튼 식별자.
+let gureumUpdateNotificationActionIdentifier = "Gureum.update.action"
 
 class UpdateManager {
     static let shared = UpdateManager()
@@ -62,21 +69,33 @@ class UpdateManager {
         requestVersionInfo(mode: mode, done)
     }
 
-    class func notifyUpdate(info: VersionInfo) {
-        let notification = NSUserNotification()
+    /// 업데이트 알림에 표시할 `UNNotificationContent`를 만든다.
+    /// 전달(delivery)과 분리해 단위 테스트에서 컨텐츠만 검증할 수 있도록 한다.
+    @available(macOS 10.14, *)
+    class func updateNotificationContent(info: VersionInfo) -> UNMutableNotificationContent {
+        let content = UNMutableNotificationContent()
         var title = "구름 입력기 업데이트 알림"
         if info.experimental {
             title += " (실험 버전)"
         }
-        notification.title = title
-        notification.hasActionButton = true
-        notification.hasReplyButton = false
-        notification.actionButtonTitle = "업데이트"
-        notification.otherButtonTitle = "취소"
-        notification.informativeText = "최신 버전: \(info.update.version) 현재 버전: \(info.current ?? "-")\n\(info.update.description)"
-        notification.userInfo = ["url": info.update.url]
+        content.title = title
+        content.body = "최신 버전: \(info.update.version) 현재 버전: \(info.current ?? "-")\n\(info.update.description)"
+        content.userInfo = ["url": info.update.url]
+        content.categoryIdentifier = gureumUpdateNotificationCategoryIdentifier
+        return content
+    }
 
-        NSUserNotificationCenter.default.deliver(notification)
+    class func notifyUpdate(info: VersionInfo) {
+        guard #available(macOS 10.14, *) else {
+            return
+        }
+        let content = updateNotificationContent(info: info)
+        let request = UNNotificationRequest(
+            identifier: gureumUpdateNotificationCategoryIdentifier,
+            content: content,
+            trigger: nil
+        )
+        UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
     }
 
     func notifyUpdateIfNeeded() {
