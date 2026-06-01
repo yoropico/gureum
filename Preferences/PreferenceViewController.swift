@@ -8,7 +8,7 @@
 
 import Cocoa
 import Foundation
-import SwiftIOKit
+import IOKit.hid
 
 import MASShortcut
 #if !USE_PREFPANE
