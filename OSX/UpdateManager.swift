@@ -52,33 +52,78 @@ class UpdateManager {
         }
     }
 
+    struct GitHubAsset: Decodable {
+        let name: String
+        let browserDownloadURL: String
+        enum CodingKeys: String, CodingKey {
+            case name
+            case browserDownloadURL = "browser_download_url"
+        }
+    }
+
+    struct GitHubRelease: Decodable {
+        let tagName: String
+        let body: String?
+        let htmlURL: String
+        let prerelease: Bool
+        let assets: [GitHubAsset]
+        enum CodingKeys: String, CodingKey {
+            case tagName = "tag_name"
+            case body
+            case htmlURL = "html_url"
+            case prerelease
+            case assets
+        }
+
+        /// 첫 번째 `.zip` 자산의 다운로드 URL.
+        var zipAssetURL: String? {
+            assets.first(where: { $0.name.hasSuffix(".zip") })?.browserDownloadURL
+        }
+    }
+
     struct VersionInfo {
         let current: String? = Bundle.main.version
         let update: UpdateInfo
         let experimental: Bool
+        var pageURL: String? = nil
     }
 
     func requestVersionInfo(mode: UpdateMode, _ done: @escaping ((VersionInfo?) -> Void)) {
-        let url: URL
+        let urlString: String
         switch mode {
         case .Stable:
-            url = URL(string: "https://gureum.io/version.json")!
+            urlString = "https://api.github.com/repos/yoropico/gureum/releases/latest"
         case .Experimental:
-            url = URL(string: "https://gureum.io/version-experimental.json")!
+            urlString = "https://api.github.com/repos/yoropico/gureum/releases"
         }
-        var urlRequest = URLRequest(url: url)
-        urlRequest.timeoutInterval = 1.0
+        var urlRequest = URLRequest(url: URL(string: urlString)!)
+        urlRequest.timeoutInterval = 5.0
         urlRequest.cachePolicy = .reloadIgnoringCacheData
+        // GitHub API requires a User-Agent; without it the request gets 403.
+        urlRequest.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
+        urlRequest.setValue("Gureum-Updater", forHTTPHeaderField: "User-Agent")
 
-        let request = AF.request(urlRequest)
-//        request.responseJSON {
-//            data in
-//            print("data!", data)
-//        }
-        request.validate().responseDecodable(of: UpdateInfo.self) { response in
-            guard let update = response.value else { return done(nil) }
-            let version = VersionInfo(update: update, experimental: mode == .Experimental)
+        let handle: (GitHubRelease?) -> Void = { release in
+            guard let release = release else { return done(nil) }
+            let info = UpdateInfo(
+                version: release.tagName,
+                description: release.body ?? "",
+                url: release.zipAssetURL ?? release.htmlURL
+            )
+            let version = VersionInfo(
+                update: info,
+                experimental: mode == .Experimental,
+                pageURL: release.htmlURL
+            )
             done(version)
+        }
+
+        let request = AF.request(urlRequest).validate()
+        switch mode {
+        case .Stable:
+            request.responseDecodable(of: GitHubRelease.self) { handle($0.value) }
+        case .Experimental:
+            request.responseDecodable(of: [GitHubRelease].self) { handle($0.value?.first) }
         }
     }
 

@@ -731,6 +731,33 @@ class GureumTests: XCTestCase {
         }
     }
 
+    func testGitHubReleaseDecodeAndAsset() throws {
+        let json = """
+        {
+          "tag_name": "1.16.0",
+          "body": "release notes",
+          "html_url": "https://github.com/yoropico/gureum/releases/tag/1.16.0",
+          "prerelease": false,
+          "assets": [
+            {"name": "Gureum-1.16.0.zip", "browser_download_url": "https://example.com/Gureum-1.16.0.zip"},
+            {"name": "source.txt", "browser_download_url": "https://example.com/source.txt"}
+          ]
+        }
+        """.data(using: .utf8)!
+        let release = try JSONDecoder().decode(UpdateManager.GitHubRelease.self, from: json)
+        XCTAssertEqual(release.tagName, "1.16.0")
+        XCTAssertEqual(release.body, "release notes")
+        XCTAssertFalse(release.prerelease)
+        XCTAssertEqual(release.zipAssetURL, "https://example.com/Gureum-1.16.0.zip")
+
+        let noZip = """
+        {"tag_name":"1.16.0","html_url":"https://h","prerelease":false,"assets":[]}
+        """.data(using: .utf8)!
+        let r2 = try JSONDecoder().decode(UpdateManager.GitHubRelease.self, from: noZip)
+        XCTAssertNil(r2.body)
+        XCTAssertNil(r2.zipAssetURL)
+    }
+
     func testIsNewer() throws {
         XCTAssertTrue(UpdateManager.isNewer("1.16.0", than: "1.15.0"))
         XCTAssertFalse(UpdateManager.isNewer("1.15.0", than: "1.15.0"))
