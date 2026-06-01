@@ -100,7 +100,6 @@
 		388186D321EE339B004B7FDB /* Hangul.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 389A387D1423477F00A2ED88 /* Hangul.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		388E2A611469249700ADBDA5 /* Hangul.strings in Resources */ = {isa = PBXBuildFile; fileRef = 388E2A601469249700ADBDA5 /* Hangul.strings */; };
 		38946A6B19F4F3FD00920E09 /* InputMethodKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38946A6A19F4F3FD00920E09 /* InputMethodKit.framework */; };
-		38B9547B229ED9BC00A9D6E1 /* AnswersHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38B9547A229ED9BC00A9D6E1 /* AnswersHelper.swift */; };
 		38B9551022A833E900A9D6E1 /* SystemConfigurationWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38B9550D22A833E900A9D6E1 /* SystemConfigurationWatcher.swift */; };
 		38BFE80218B45419004B2B2E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 38BFE80018B45419004B2B2E /* InfoPlist.strings */; };
 		38BFE80418B45419004B2B2E /* GureumObjCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 38BFE80318B45419004B2B2E /* GureumObjCTests.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
@@ -357,7 +356,6 @@
 		38A9A23B272987EE00335F72 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		38A9A23C272987EE00335F72 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		38AC8D49217C4EDA00E4B332 /* InputReceiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputReceiver.swift; sourceTree = "<group>"; };
-		38B9547A229ED9BC00A9D6E1 /* AnswersHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnswersHelper.swift; sourceTree = "<group>"; };
 		38B9550D22A833E900A9D6E1 /* SystemConfigurationWatcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SystemConfigurationWatcher.swift; sourceTree = "<group>"; };
 		38BFE7FA18B45419004B2B2E /* OSXTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OSXTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		38BFE7FF18B45419004B2B2E /* GureumTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GureumTests-Info.plist"; sourceTree = "<group>"; };
@@ -463,7 +461,6 @@
 				E5ED2DE3213030B700BD9B13 /* GureumMenu.swift */,
 				E5A0EA092139098800D4AD69 /* GureumAppDelegate.swift */,
 				3831983B21DB744900E20D78 /* UpdateManager.swift */,
-				38B9547A229ED9BC00A9D6E1 /* AnswersHelper.swift */,
 				38475AEB14129BAA0062100D /* Icons */,
 				38162DF7141263280077AA2D /* Supporting Files */,
 				38098F09215A3DB30001F159 /* Assets.xcassets */,
@@ -1071,7 +1068,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				388186AA21EB3D61004B7FDB /* TISInputSource.m in Sources */,
-				38B9547B229ED9BC00A9D6E1 /* AnswersHelper.swift in Sources */,
 				E5A0EA0A2139098800D4AD69 /* GureumAppDelegate.swift in Sources */,
 				386BEC4D24A3861C0066BF95 /* PreferenceViewController.swift in Sources */,
 				386BEC4824A386140066BF95 /* GureumPreferencePane.swift in Sources */,

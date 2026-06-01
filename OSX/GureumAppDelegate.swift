@@ -48,7 +48,6 @@ class NotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate {
         if updating {
             NSWorkspace.shared.open(URL(string: download)!)
         }
-        answers.logUpdateNotification(updating: updating)
     }
 }
 
@@ -91,10 +90,7 @@ class GureumAppDelegate: NSObject, NSApplicationDelegate, GureumApplicationDeleg
         }
 
         #if DEBUG
-            // Fabric.with([Answers.self])
             preferencesWindow.showWindow(nil)
-        #else
-            // Fabric.with([Crashlytics.self, Answers.self])
         #endif
 
         UpdateManager.shared.notifyUpdateIfNeeded()
@@ -106,14 +102,6 @@ class GureumAppDelegate: NSObject, NSApplicationDelegate, GureumApplicationDeleg
 
         // IMKServer를 띄워야만 입력기가 동작한다
         _ = InputMethodServer.shared
-
-        answers.logLaunch()
-
-        Timer.scheduledTimer(timeInterval: 3600, target: answers, selector: #selector(AnswersHelper.logUptime), userInfo: nil, repeats: true)
-        // for 10.12+
-        // Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { _ in
-        //   answers.logUptime()
-        // }
 
         watcher.reloadConfiguration()
     }
