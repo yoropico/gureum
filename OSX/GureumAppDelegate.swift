@@ -12,7 +12,6 @@ import GureumCore
 import Hangul
 import UserNotifications
 
-@available(macOS 10.14, *)
 class NotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate {
     static let appDefault = NotificationCenterDelegate()
 
@@ -21,11 +20,7 @@ class NotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate {
                                 willPresent _: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void)
     {
-        if #available(macOS 11.0, *) {
-            completionHandler([.banner, .list])
-        } else {
-            completionHandler([.alert])
-        }
+        completionHandler([.banner, .list])
     }
 
     func userNotificationCenter(_: UNUserNotificationCenter,
@@ -56,34 +51,32 @@ class GureumAppDelegate: NSObject, NSApplicationDelegate, GureumApplicationDeleg
     let configuration = Configuration.shared
 
     func applicationDidFinishLaunching(_: Notification) {
-        if #available(macOS 10.14, *) {
-            let center = UNUserNotificationCenter.current()
-            center.delegate = NotificationCenterDelegate.appDefault
+        let center = UNUserNotificationCenter.current()
+        center.delegate = NotificationCenterDelegate.appDefault
 
-            let updateAction = UNNotificationAction(
-                identifier: gureumUpdateNotificationActionIdentifier,
-                title: "업데이트",
-                options: [.foreground]
-            )
-            let updateCategory = UNNotificationCategory(
-                identifier: gureumUpdateNotificationCategoryIdentifier,
-                actions: [updateAction],
-                intentIdentifiers: [],
-                options: []
-            )
-            center.setNotificationCategories([updateCategory])
-            center.requestAuthorization(options: [.alert]) { _, _ in }
+        let updateAction = UNNotificationAction(
+            identifier: gureumUpdateNotificationActionIdentifier,
+            title: "업데이트",
+            options: [.foreground]
+        )
+        let updateCategory = UNNotificationCategory(
+            identifier: gureumUpdateNotificationCategoryIdentifier,
+            actions: [updateAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        center.setNotificationCategories([updateCategory])
+        center.requestAuthorization(options: [.alert]) { _, _ in }
 
-            #if DEBUG
-                let content = UNMutableNotificationContent()
-                content.title = "디버그 빌드 알림"
-                content.body = "이 버전은 디버그 빌드입니다. 키 입력이 로그로 남을 수 있어 안전하지 않습니다."
-                center.add(
-                    UNNotificationRequest(identifier: "Gureum.debug", content: content, trigger: nil),
-                    withCompletionHandler: nil
-                )
-            #endif
-        }
+        #if DEBUG
+            let content = UNMutableNotificationContent()
+            content.title = "디버그 빌드 알림"
+            content.body = "이 버전은 디버그 빌드입니다. 키 입력이 로그로 남을 수 있어 안전하지 않습니다."
+            center.add(
+                UNNotificationRequest(identifier: "Gureum.debug", content: content, trigger: nil),
+                withCompletionHandler: nil
+            )
+        #endif
 
         #if DEBUG
             preferencesWindow.showWindow(nil)
@@ -92,9 +85,7 @@ class GureumAppDelegate: NSObject, NSApplicationDelegate, GureumApplicationDeleg
         UpdateManager.shared.notifyUpdateIfNeeded()
 
         // 입력 모니터링 권한 요청
-        if #available(macOS 10.15, *) {
-            IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
-        }
+        IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
 
         // IMKServer를 띄워야만 입력기가 동작한다
         _ = InputMethodServer.shared

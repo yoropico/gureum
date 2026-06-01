@@ -71,7 +71,6 @@ class UpdateManager {
 
     /// 업데이트 알림에 표시할 `UNNotificationContent`를 만든다.
     /// 전달(delivery)과 분리해 단위 테스트에서 컨텐츠만 검증할 수 있도록 한다.
-    @available(macOS 10.14, *)
     class func updateNotificationContent(info: VersionInfo) -> UNMutableNotificationContent {
         let content = UNMutableNotificationContent()
         var title = "구름 입력기 업데이트 알림"
@@ -86,9 +85,6 @@ class UpdateManager {
     }
 
     class func notifyUpdate(info: VersionInfo) {
-        guard #available(macOS 10.14, *) else {
-            return
-        }
         let content = updateNotificationContent(info: info)
         let request = UNNotificationRequest(
             identifier: gureumUpdateNotificationCategoryIdentifier,
