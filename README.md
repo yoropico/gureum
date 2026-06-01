@@ -1,14 +1,15 @@
 ![logo](OSX/Assets.xcassets/AppIcon.appiconset/icon_256x256.png)
 
-![platform](https://img.shields.io/badge/platform-macos-lightgrey)
+![platform](https://img.shields.io/badge/platform-macOS%2011.0%2B-lightgrey)
 
 # 구름 입력기 (yoropico 포크)
 
 macOS를 위한 한글 입력기 — [gureum/gureum](https://github.com/gureum/gureum)의 포크입니다.
 
 > **이 저장소는 구름 입력기의 포크입니다.**
-> 최신 macOS에 맞춰 일부 코드를 현대화하고, 빠른 포커스 전환 시 한글 입력이
-> 영어로 고착되던 버그를 고쳤습니다. 자세한 변경 내역은
+> 빠른 포커스 전환 시 한글 입력이 영어로 고착되던 버그를 고치고, 최신 macOS에 맞춰
+> 코드를 현대화했습니다. 죽은 코드와 무거운 의존성(Firebase 등)을 걷어내고 최소
+> macOS 버전을 11.0으로 올렸습니다. 자세한 변경 내역은
 > [CHANGELOG.md](CHANGELOG.md)를 참고해 주세요. 원본 프로젝트의 일반적인
 > 소개·사용법은 [gureum/gureum](https://github.com/gureum/gureum)에 있습니다.
 
@@ -17,7 +18,7 @@ macOS를 위한 한글 입력기 — [gureum/gureum](https://github.com/gureum/g
 구름 입력기는 빠르고 쓰기 편한 macOS용 한글 입력기입니다.
 
 - **편리하게.** [libhangul](https://github.com/libhangul/libhangul) 기반으로 모아치기를 지원합니다. 모아치기 기능은 세벌식 사용자에게 특히 더 유용합니다.
-- **가볍게.** 최소한의 기능만 구현하여 가볍게 돌아갑니다.
+- **가볍게.** 최소한의 기능만 구현하여 가볍게 돌아갑니다. 이 포크는 Firebase·분석 코드 등 불필요한 의존성을 제거해 더 가볍습니다.
 - **자유롭게.** 오픈 소스 소프트웨어이며, 소스 코드는 BSD와 LGPL로 배포됩니다.
 
 `libhangul` 기반이라 두벌식·세벌식 등 다양한 한글 자판을 지원하고, 드보락이나
@@ -26,14 +27,24 @@ macOS를 위한 한글 입력기 — [gureum/gureum](https://github.com/gureum/g
 
 ## 이 포크의 변경사항
 
-upstream(`gureum/gureum`) 대비 이 포크에서 추가된 변경입니다. 전체 목록은
+upstream(`gureum/gureum`) 대비 이 포크에서 추가된 변경입니다. 전체 목록과 상세는
 [CHANGELOG.md](CHANGELOG.md)에 있습니다.
+
+### 정리·최신화 (1.15.0)
+
+- **Firebase Crashlytics 제거** — 크래시 리포팅용으로만 쓰이던 Firebase를 통째로 들어내, gRPC·protobuf 등 약 16개의 transitive 의존성이 함께 사라졌습니다(남은 SPM 의존성: MASShortcut·Fuse·Alamofire·SwiftUp).
+- **죽은 코드 제거** — 동작하지 않던 분석 셸(`AnswersHelper`)과, 어떤 활성 빌드에서도 쓰이지 않던 iOS 소스 일체(독립 `iOS.xcodeproj` 포함, 약 1만 줄)를 제거했습니다.
+- **최소 macOS 11.0으로 상향** — 더 이상 필요 없는 구버전 `@available` 분기를 정리했습니다.
+
+### 버그 수정·현대화 (1.14.0)
 
 - **한글 입력이 영어로 고착되는 문제 수정** ([#2](https://github.com/yoropico/gureum/pull/2)) — Edge/Chromium처럼 포커스가 빠르게 바뀌는 앱에서 입력 소스는 한글로 보이는데 실제로는 영어가 입력되던 문제를 고쳤습니다. 새 입력 세션이 직전 한/영 상태를 이어받도록 했습니다.
 - **알림 시스템 현대화** ([#1](https://github.com/yoropico/gureum/pull/1)) — deprecated된 `NSUserNotification`을 최신 `UserNotifications` 프레임워크로 마이그레이션했습니다.
 - **Preferences 빌드 오류 수정** ([#1](https://github.com/yoropico/gureum/pull/1)) — Xcode의 explicitly-built modules 환경에서 `SwiftIOKit` 대신 `IOKit.hid`를 사용하도록 바꿔 빌드 실패를 해결했습니다.
 
 ## 설치
+
+**요구 사항: macOS 11.0 (Big Sur) 이상.**
 
 이 포크는 Homebrew Cask나 공식 설치 패키지로 배포되지 않습니다. 소스에서 직접
 빌드해 설치합니다.

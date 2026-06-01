@@ -8,6 +8,21 @@
 아래 항목은 upstream 대비 이 포크에서 추가된 변경 사항이며, upstream 자체의
 변경 이력은 원본 저장소를 참고해 주세요.
 
+## [1.15.0] - 2026-06-01
+
+코드 정리와 현대화 릴리스입니다. 죽은 코드와 무거운 의존성을 크게 줄였습니다.
+최소 macOS 버전 상향을 제외하면 입력 동작에는 변화가 없습니다.
+
+### 바뀜 (Changed)
+
+- **최소 macOS 버전 상향: 10.13 → 11.0 (Big Sur).** macOS 11.0 미만에서는 더 이상 동작하지 않습니다. 이에 맞춰 소스의 macOS 10.14 / 10.15 / 11.0 `@available` 가드를 모두 걷어냈습니다. (Preferences의 macOS 13 가드는 유지)
+
+### 제거 (Removed)
+
+- **Firebase Crashlytics 전체 제거.** `firebase-ios-sdk` SPM 의존성, `FirebaseCrashlytics` 링크, "Run Crashlytics" 빌드 페이즈, 번들되던 `GoogleService-Info.plist`, `FirebaseApp.configure()` 호출을 모두 제거했습니다. 크래시 리포트가 이 포크가 아닌 upstream 작성자의 Firebase 프로젝트로만 전송되던 것을 없애면서, gRPC·BoringSSL·protobuf 등 약 16개의 transitive SPM 패키지가 함께 사라졌습니다(남은 의존성: MASShortcut·Fuse·Alamofire·SwiftUp). 크래시 수집을 위해 켜 두던 `NSApplicationCrashOnExceptions` 등록도 함께 제거했습니다.
+- **죽은 분석 코드(`AnswersHelper`) 제거.** Fabric/Answers SDK가 빠진 뒤 본문이 전부 주석 처리되어 아무 동작도 하지 않던 셸과 모든 호출부를 제거했습니다.
+- **미사용 iOS 서브시스템 제거.** 어떤 활성 빌드(Gureum.xcodeproj·Makefile·CI 모두 macOS 전용)에서도 참조되지 않고, 2020년에 종료된 Fabric/Crashlytics SDK를 import하던 iOS 소스 일체(`iOS/`, `iOSApp/`, `iOSShared/`, `iOSTests/`, `iOSTheme/`)와 독립 `iOS.xcodeproj`를 제거했습니다(약 1만 줄).
+
 ## [1.14.0] - 2026-06-01
 
 upstream `1.13.2`를 기반으로 한 첫 포크 릴리스입니다.
@@ -24,4 +39,5 @@ upstream `1.13.2`를 기반으로 한 첫 포크 릴리스입니다.
 
 - **알림 시스템 현대화** ([#1](https://github.com/yoropico/gureum/pull/1)) — deprecated된 `NSUserNotification` / `NSUserNotificationCenter`를 최신 `UserNotifications` 프레임워크로 마이그레이션했습니다. (`OSX/GureumAppDelegate.swift`, `OSX/UpdateManager.swift`, 관련 테스트)
 
-[1.14.0]: https://github.com/yoropico/gureum/compare/1.13.2...main
+[1.15.0]: https://github.com/yoropico/gureum/compare/1.14.0...main
+[1.14.0]: https://github.com/yoropico/gureum/compare/1.13.2...1.14.0
