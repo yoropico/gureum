@@ -118,7 +118,10 @@ class UpdateManager {
             done(version)
         }
 
-        let request = AF.request(urlRequest).validate()
+        // 상태 코드만 검증한다. 기본 `validate()`는 응답 Content-Type을 요청 Accept
+        // 헤더와 대조하는데, GitHub는 Accept가 application/vnd.github+json이어도
+        // application/json으로 응답하므로 content-type 검증이 실패해 nil이 된다.
+        let request = AF.request(urlRequest).validate(statusCode: 200 ..< 300)
         switch mode {
         case .Stable:
             request.responseDecodable(of: GitHubRelease.self) { handle($0.value) }
