@@ -67,7 +67,7 @@ extension InputController {
                 switch result {
                 case .success:
                     done.messageText = "업데이트 완료"
-                    done.informativeText = "로그아웃 후 다시 로그인하면 적용됩니다."
+                    done.informativeText = "새 버전을 설치했습니다. 로그아웃 후 다시 로그인하면 적용됩니다.\n\n적용 후 입력 소스 목록에서 구름이 사라졌으면 시스템 설정 > 키보드 > 입력 소스에서 다시 추가하고, 한/영 전환이 안 되면 시스템 설정 > 개인정보 보호 및 보안 > 입력 모니터링에서 구름을 다시 허용한 뒤 로그아웃·로그인 해 주세요."
                 case let .failure(error):
                     done.messageText = "업데이트 실패"
                     switch error {
