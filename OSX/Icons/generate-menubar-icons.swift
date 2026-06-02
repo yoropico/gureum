@@ -7,13 +7,13 @@ func cloudPath(in rect: NSRect) -> NSBezierPath {
         NSPoint(x: rect.minX + nx * rect.width, y: rect.minY + ny * rect.height) }
     func r(_ n: CGFloat) -> CGFloat { n * rect.width }
     let path = NSBezierPath()
-    path.append(NSBezierPath(roundedRect: NSRect(x: p(0.05, 0.10).x, y: p(0, 0.10).y,
-        width: r(0.90), height: r(0.36)), xRadius: r(0.17), yRadius: r(0.17)))
+    path.append(NSBezierPath(roundedRect: NSRect(x: p(0.02, 0.06).x, y: p(0, 0.06).y,
+        width: r(0.96), height: r(0.42)), xRadius: r(0.19), yRadius: r(0.19)))
     func circle(_ cx: CGFloat, _ cy: CGFloat, _ rad: CGFloat) {
         let c = p(cx, cy)
         path.append(NSBezierPath(ovalIn: NSRect(x: c.x - r(rad), y: c.y - r(rad),
             width: r(rad) * 2, height: r(rad) * 2))) }
-    circle(0.29, 0.50, 0.23); circle(0.52, 0.58, 0.32); circle(0.75, 0.50, 0.23)
+    circle(0.27, 0.54, 0.26); circle(0.51, 0.62, 0.37); circle(0.75, 0.54, 0.26)
     path.windingRule = .nonZero
     return path
 }
@@ -32,7 +32,7 @@ func renderIcon(size: Int, label: String?) -> NSBitmapImageRep {
     cloudPath(in: NSRect(x: 0, y: 0, width: s, height: s)).fill()
     if let label = label, !label.isEmpty {
         ctx.compositingOperation = .destinationOut   // erase label region -> alpha 0
-        let fs = s * (label.count >= 2 ? 0.34 : 0.50)
+        let fs = s * (label.count >= 2 ? 0.40 : 0.58)
         let font = NSFont.systemFont(ofSize: fs, weight: .heavy)
         let str = NSAttributedString(string: label,
             attributes: [.font: font, .foregroundColor: NSColor.black])
