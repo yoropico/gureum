@@ -1,18 +1,19 @@
 import AppKit
 
 // Cloud silhouette (rounded base bar + three overlapping bumps), normalized to `rect`.
+// Sized to fill most of the tile (~x[0.04,0.98], y[0.10,0.90]) so it reads at 16px.
 func cloudPath(in rect: NSRect) -> NSBezierPath {
     func p(_ nx: CGFloat, _ ny: CGFloat) -> NSPoint {
         NSPoint(x: rect.minX + nx * rect.width, y: rect.minY + ny * rect.height) }
     func r(_ n: CGFloat) -> CGFloat { n * rect.width }
     let path = NSBezierPath()
-    path.append(NSBezierPath(roundedRect: NSRect(x: p(0.12, 0.30).x, y: p(0, 0.30).y,
-        width: r(0.76), height: r(0.24)), xRadius: r(0.12), yRadius: r(0.12)))
+    path.append(NSBezierPath(roundedRect: NSRect(x: p(0.05, 0.10).x, y: p(0, 0.10).y,
+        width: r(0.90), height: r(0.36)), xRadius: r(0.17), yRadius: r(0.17)))
     func circle(_ cx: CGFloat, _ cy: CGFloat, _ rad: CGFloat) {
         let c = p(cx, cy)
         path.append(NSBezierPath(ovalIn: NSRect(x: c.x - r(rad), y: c.y - r(rad),
             width: r(rad) * 2, height: r(rad) * 2))) }
-    circle(0.33, 0.48, 0.15); circle(0.53, 0.56, 0.21); circle(0.71, 0.49, 0.16)
+    circle(0.29, 0.50, 0.23); circle(0.52, 0.58, 0.32); circle(0.75, 0.50, 0.23)
     path.windingRule = .nonZero
     return path
 }
@@ -28,7 +29,7 @@ func renderIcon(size: Int, label: String?) -> NSBitmapImageRep {
     NSGraphicsContext.current = ctx
     ctx.shouldAntialias = true
     NSColor.black.setFill()
-    cloudPath(in: NSRect(x: 0, y: 0, width: s, height: s).insetBy(dx: s * 0.04, dy: s * 0.04)).fill()
+    cloudPath(in: NSRect(x: 0, y: 0, width: s, height: s)).fill()
     if let label = label, !label.isEmpty {
         ctx.compositingOperation = .destinationOut   // erase label region -> alpha 0
         let fs = s * (label.count >= 2 ? 0.34 : 0.50)
