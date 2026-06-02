@@ -12,8 +12,6 @@ import Foundation
 final class ConfiguraionWindowController: NSWindowController {}
 
 final class PreferencePaneViewController: NSViewController {
-    private let _isAtLeast10_15 = ProcessInfo().isOperatingSystemAtLeast(OperatingSystemVersion(majorVersion: 10, minorVersion: 15, patchVersion: 0))
-
     func viewForFailure() -> NSView {
         let rect = NSRect(x: 0, y: 0, width: 200, height: 100)
         let label = NSTextView(frame: rect)
@@ -22,23 +20,6 @@ final class PreferencePaneViewController: NSViewController {
         let view = NSView(frame: rect)
         view.addSubview(label)
         return view
-    }
-
-    func viewFromPrefPane() -> NSView {
-        let path = Bundle.main.path(forResource: "Preferences", ofType: "prefPane")
-        let bundle = NSPrefPaneBundle(path: path)!
-        guard bundle.bundle != nil, bundle.bundle.principalClass != nil else {
-            return viewForFailure()
-        }
-        if _isAtLeast10_15 {
-            let pane = NSPreferencePane(bundle: bundle.bundle)
-            return pane.loadMainView()
-        } else {
-            let loaded = bundle.instantiatePrefPaneObject()
-            assert(loaded)
-            let pane = bundle.prefPaneObject()!
-            return pane.mainView
-        }
     }
 
     func viewFromNib() -> NSView {
@@ -58,10 +39,9 @@ final class PreferencePaneViewController: NSViewController {
     }
 
     override func loadView() {
-        #if USE_PREFPANE
-            view = viewFromPrefPane()
-        #else
-            view = viewFromNib()
-        #endif
+        // 환경설정 UI는 앱 프로세스 안에서 직접 nib으로 띄운다.
+        // 예전에는 System Settings의 .prefPane 호스팅을 거쳤으나, macOS 13+
+        // System Settings에서 서드파티 prefPane 호스팅이 취약해 앱 내장 방식만 쓴다.
+        view = viewFromNib()
     }
 }

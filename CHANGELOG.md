@@ -10,7 +10,11 @@
 
 ## [Unreleased]
 
-견고성(robustness) 개선 릴리스입니다. 입력 동작에는 변화가 없습니다.
+견고성(robustness) 개선과 환경설정 호스팅 정리 릴리스입니다. 입력 동작에는 변화가 없습니다.
+
+### 바뀜 (Changed)
+
+- **환경설정을 앱 내장 윈도로 단일화 (macOS 26 대비).** 메뉴의 `환경설정...`은 이미 `Configuration.storyboard` 기반 앱 내장 윈도(`PreferencePaneViewController.viewFromNib()`)로 설정 UI를 직접 띄우고 있었으나, 앱 쪽에 deprecated된 System Settings `.prefPane` 호스팅(`NSPreferencePane`/`NSPrefPaneBundle`) 경로가 죽은 코드로 남아 있었습니다. macOS 13+ System Settings에서 서드파티 prefPane 호스팅이 취약하고 macOS 26에서 더 불안정할 수 있어, 앱에서 이 경로를 제거하고 nib 호스팅만 사용하도록 정리했습니다. (`OSX/ConfigurationWindow.swift`) 별도의 레거시 `Preferences.prefPane` 타깃 자체는 호환을 위해 유지합니다.
 
 ### 고침 (Fixed)
 
