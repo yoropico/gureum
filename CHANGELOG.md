@@ -8,6 +8,18 @@
 아래 항목은 upstream 대비 이 포크에서 추가된 변경 사항이며, upstream 자체의
 변경 이력은 원본 저장소를 참고해 주세요.
 
+## [Unreleased]
+
+견고성(robustness) 개선 릴리스입니다. 입력 동작에는 변화가 없습니다.
+
+### 고침 (Fixed)
+
+- **한자·이모지 검색 리소스 로딩 시 크래시 가능성 제거.** `FuseSearchSource`가 번들 리소스(`hanjar`/`emoji`/`emoji_ko`)를 `try!`로 읽어, 파일이 없거나 UTF-8로 읽히지 않으면 즉시 크래시했습니다. 이제 읽기 실패 시 빈 소스로 시작하고 오류를 로그로 남깁니다. 또한 `"설명:완성"` 형식이 아닌(콜론 없는) 줄을 만나면 첨자 접근에서 크래시하던 문제도 해당 줄을 건너뛰도록 고쳤습니다. (`OSXCore/SearchPool.swift`)
+
+### 제거 (Removed)
+
+- **죽은 코드 정리.** `UpdateManager`의 주석 처리된 `responseJSON` 디버그 블록과, 프로퍼티명과 동일해 컴파일러가 자동 합성하던 불필요한 `UpdateInfo.CodingKeys` 보일러플레이트를 제거했습니다. (`OSX/UpdateManager.swift`)
+
 ## [1.15.0] - 2026-06-01
 
 코드 정리와 현대화 릴리스입니다. 죽은 코드와 무거운 의존성을 크게 줄였습니다.
@@ -39,5 +51,6 @@ upstream `1.13.2`를 기반으로 한 첫 포크 릴리스입니다.
 
 - **알림 시스템 현대화** ([#1](https://github.com/yoropico/gureum/pull/1)) — deprecated된 `NSUserNotification` / `NSUserNotificationCenter`를 최신 `UserNotifications` 프레임워크로 마이그레이션했습니다. (`OSX/GureumAppDelegate.swift`, `OSX/UpdateManager.swift`, 관련 테스트)
 
-[1.15.0]: https://github.com/yoropico/gureum/compare/1.14.0...main
+[Unreleased]: https://github.com/yoropico/gureum/compare/1.15.0...main
+[1.15.0]: https://github.com/yoropico/gureum/compare/1.14.0...1.15.0
 [1.14.0]: https://github.com/yoropico/gureum/compare/1.13.2...1.14.0

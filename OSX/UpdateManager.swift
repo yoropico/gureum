@@ -24,12 +24,6 @@ class UpdateManager {
         let version: String
         let description: String
         let url: String
-
-        enum CodingKeys: String, CodingKey {
-            case version
-            case description
-            case url
-        }
     }
 
     struct VersionInfo {
@@ -51,10 +45,6 @@ class UpdateManager {
         urlRequest.cachePolicy = .reloadIgnoringCacheData
 
         let request = AF.request(urlRequest)
-//        request.responseJSON {
-//            data in
-//            print("data!", data)
-//        }
         request.validate().responseDecodable(of: UpdateInfo.self) { response in
             guard let update = response.value else { return done(nil) }
             let version = VersionInfo(update: update, experimental: mode == .Experimental)

@@ -152,7 +152,16 @@ final class FuseSearchSource: SearchSource {
     }
 
     convenience init(path: String, threshold: Double) {
-        let rawData = try! String(contentsOfFile: path, encoding: .utf8)
+        let rawData: String
+        do {
+            rawData = try String(contentsOfFile: path, encoding: .utf8)
+        } catch {
+            // 번들 리소스가 없거나 읽을 수 없으면 빈 소스로 시작한다.
+            // (예전에는 try!라 이 경우 즉시 크래시했다.)
+            NSLog("FuseSearchSource: failed to load resource at %@: %@", path, String(describing: error))
+            self.init(source: [], threshold: threshold)
+            return
+        }
         let rows: [String] = rawData.components(separatedBy: .newlines)
         let source: [Word] = rows.compactMap {
             guard let first = $0.first else {
@@ -162,6 +171,10 @@ final class FuseSearchSource: SearchSource {
                 return nil
             }
             let items = $0.split(separator: ":", maxSplits: 2, omittingEmptySubsequences: false)
+            // "설명:완성" 형식이 아닌(콜론이 없는) 줄은 건너뛴다.
+            guard items.count >= 2 else {
+                return nil
+            }
             return Word(completion: String(items[1]), description: String(items[0]))
         }
         self.init(source: source, threshold: threshold)
