@@ -1,37 +1,46 @@
-# Design: Gureum status-bar cloud indicator (OneDrive-style wide cloud)
+# Design: Gureum status-bar cloud indicator (Apple `icloud` SF Symbol)
 
 Date: 2026-06-03
-Status: Approved, pre-implementation. Builds on
+Status: Built & installed (final design below). Builds on
 `2026-06-03-menubar-cloud-square-redesign.md`. Scope: macOS app target (`OSX`) —
 asset catalog + generator + `GureumAppDelegate.swift`. No Info.plist, no input
-hot-path (InputController/InputReceiver/Composer) change.
+hot-path (InputController/InputReceiver/Composer) change, no pbxproj change.
 
 ## Why
 
 The menu-bar input-source icon slot (`tsInputModeMenuIconFileKey`) is a FIXED
 SQUARE, so a wide cloud is aspect-distorted into it (the original squish). The
 OneDrive menu-bar cloud avoids this only because OneDrive is a **status-bar app
-(NSStatusItem)** — a status item slot is **width-flexible**, so a wide image is
-shown undistorted. The user wants that OneDrive look. So we add Gureum's own
-NSStatusItem with a wide cloud, while ALSO fixing the system input-source icon so
-it is not distorted either way.
+(NSStatusItem)** — that slot is **width-flexible**, so a wide image shows
+undistorted. The user wanted that look. So we add Gureum's own NSStatusItem with
+a wide cloud, while ALSO fixing the system input-source icon so it is not
+distorted either way.
+
+We do NOT hand-roll the cloud art or embed Microsoft's OneDrive logo (trademark).
+The cloud is Apple's **`icloud` SF Symbol** family — `icloud.fill` (Korean) and
+`icloud` (English) — chosen by the user over the plainer `cloud` family. Drawn
+directly as a vector in the status item it is crisp at any size and auto-tints to
+the menu-bar appearance.
 
 ## Two layers
 
 ### Layer 1 — system input-menu icons (8 imagesets): square letterbox cloud
-The 8 existing imagesets (`eng, qwerty, han, han2, han3, han390, han3final,
-hanroman`) stay SQUARE (matches the square slot) but hold a **pretty natural-
-proportion cloud letterboxed** (centered, transparent above/below) — undistorted,
-just a bit shorter than the tile. This fixes the original bug for users who keep
-the system input menu visible.
+The 8 imagesets (`eng, qwerty, han, han2, han3, han390, han3final, hanroman`)
+stay SQUARE (matches the square slot) and hold the `icloud` SF Symbol rendered to
+a template PNG, aspect-fit (tight bounds) and **letterboxed** in the square —
+undistorted, just a bit shorter than the tile. Fixes the original bug for users
+who keep the system input menu visible. (`icloud.fill` for ko imagesets, `icloud`
+for en imagesets.)
 
-### Layer 2 — NSStatusItem: wide OneDrive-style cloud (the feature)
+### Layer 2 — NSStatusItem: wide `icloud` cloud (the feature)
 - **Created in** `GureumAppDelegate.applicationDidFinishLaunching`. The IME is a
   persistent agent process (it already shows windows/About/Preferences and runs
   `NSApplication.shared.run()`), so a status item lives for the process lifetime.
-- **Image**: a **wide (natural-proportion) cloud** template — Korean = FILLED,
-  English = OUTLINE. The status-item slot is width-flexible, so it shows
-  undistorted. Template → auto light/dark tint.
+- **Image**: `NSImage(systemSymbolName: "icloud.fill" | "icloud")` with a
+  `SymbolConfiguration(pointSize: 15, weight: .regular)`, `isTemplate = true`,
+  assigned to `item.button?.image`. **No PNG asset** — the symbol is drawn
+  directly (vector), so it is undistorted in the width-flexible status slot and
+  needs nothing from the asset catalog.
 - **Update signal**: observe the distributed notification
   `kTISNotifySelectedKeyboardInputSourceChanged`. On each change (and at launch)
   read `TISCopyCurrentKeyboardInputSource()` and classify. **No edit to the input
@@ -39,81 +48,70 @@ the system input menu visible.
   which moves the selected input source, which fires this notification.
 - **Visibility**: shown only when the current input source is a Gureum source;
   hidden when another IME is active (avoids a confusing stray cloud).
-- **Click**: a small NSMenu (환경설정… / 업데이트 확인… / 정보…) wired to new
-  methods on the app delegate (the existing `menu` outlet targets InputController
-  via the responder chain, which a status item can't reach — so a small dedicated
-  menu is cleaner).
+- **Click**: a small NSMenu (환경설정… / 구름 입력기 정보…) wired to methods on
+  the controller (the existing `menu` outlet targets InputController via the
+  responder chain, which a status item can't reach — so a dedicated menu).
 
 ## Classifier (the one unit-tested piece)
 
-Pure function, no UIKit/AppKit state:
+Pure function on `CloudStatusItemController`, no AppKit state:
 
 ```
 enum CloudState { case korean, english, hidden }
-func classify(inputSourceID: String, primaryLanguage: String?) -> CloudState {
-    guard inputSourceID.hasPrefix("org.youknowone.inputmethod.Gureum.")
-        else { return .hidden }                 // non-Gureum source -> hide
-    return primaryLanguage == "ko" ? .korean : .english
+static func classify(inputSourceID id: String, primaryLanguage lang: String?) -> CloudState {
+    let prefix = "org.youknowone.inputmethod.Gureum."
+    guard id.hasPrefix(prefix) else { return .hidden }         // non-Gureum -> hide
+    if let lang = lang { return lang == "ko" ? .korean : .english }
+    let romanModes: Set<String> = ["qwerty", "colemak", "dvorak"]   // fallback by mode id
+    return romanModes.contains(String(id.dropFirst(prefix.count))) ? .english : .korean
 }
 ```
 
 Matches the system's own ko/en icon choice (Info.plist `TISIntendedLanguage`).
-Verified by a standalone Swift check (the XCTest target would require a pbxproj
-edit; per session gotcha #10 we avoid pbxproj surgery, so the pure function is
-exercised by a throwaway `swift` script instead).
+Verified by a standalone Swift script (9/9 cases) — the XCTest target would
+require a pbxproj edit, which session gotcha #10 says to avoid, so the pure
+function is exercised by a throwaway `swift` run instead.
 
 ## Duplication (two clouds)
 
-Both clouds are undistorted and pretty. A user who wants ONLY the OneDrive-style
-wide cloud turns off System Settings → Keyboard → "Show Input menu in menu bar".
-There is no public API to toggle that, so we **document it** rather than automate.
-Default: both show, both fine.
+Both clouds are undistorted. A user who wants ONLY the wide status cloud turns off
+System Settings → Keyboard → "Show Input menu in menu bar". There is no public API
+to toggle that, so we **document it** rather than automate. Default: both show.
 
 ## Assets / generation
 
-`OSX/Icons/generate-menubar-icons.swift` renders the SAME smooth cloud (union of
-round lobes over a flat-bottomed rounded base — OneDrive-like) two ways:
-- **square** (letterbox) → the 8 system imagesets, 16×16 / 32×32.
-- **wide** (fills its natural aspect) → 2 new imagesets `statushan` (filled),
-  `statuseng` (outline), height 16/32 px, width = round(height × cloud-aspect).
-
-All template (black + alpha); `Contents.json` `template-rendering-intent:
-template`. Outline = filled silhouette minus its morphological erosion (even-width
-contour of the exact same shape).
-
-## Implementation order (de-risked)
-
-1. Generator: emit square (8) + wide status (2) assets; add the 2 imagesets.
-2. StatusItemController inside `GureumAppDelegate.swift`; classifier + standalone
-   check.
-3. Wire into `applicationDidFinishLaunching`; click menu methods on the delegate.
-4. Signed build → install → **on-device verify (R1 first): the status item
-   actually appears**; then wide cloud, ko/en toggle, dark/light, and the system
-   menu square cloud is undistorted.
+`OSX/Icons/generate-menubar-icons.swift` renders the `icloud` / `icloud.fill` SF
+Symbol to template PNGs (black + alpha; `Contents.json`
+`template-rendering-intent: template`), tight-bounds aspect-fit and letterboxed in
+a SQUARE tile, 16×16 / 32×32, for the 8 system imagesets. The status item draws
+the symbol directly, so it needs no generated asset.
 
 ## Files touched
 
-- `OSX/Icons/generate-menubar-icons.swift`
-- `OSX/Assets.xcassets` (8 existing regenerated + `statushan`, `statuseng` added)
-- `OSX/GureumAppDelegate.swift` (status item controller + click-menu methods)
+- `OSX/Icons/generate-menubar-icons.swift` (icloud SF Symbol → square letterbox)
+- `OSX/Assets.xcassets` (8 imagesets regenerated; the brief experiment's
+  `statushan`/`statuseng` imagesets were removed — the status item uses the symbol
+  directly)
+- `OSX/GureumAppDelegate.swift` (`CloudStatusItemController` + click-menu methods)
 - **Unchanged**: `OSX/Info.plist`, InputController/InputReceiver/GureumComposer,
   pbxproj (no new file/target).
 
-## Risks
+## Verification
 
-- **R1 (verify first):** a status item must actually display from this input-
-  method agent process. Low risk (the process already shows UI), but confirmed
-  on-device as the first build check.
-- **R2:** `kTISNotifySelectedKeyboardInputSourceChanged` fires for every source
-  change; the classifier's non-Gureum → hidden branch covers stray fires.
-- **R3:** template tinting white-on-dark for the wide status image — same check as
-  the asset-catalog clouds.
+- BUILD SUCCEEDED (signed Release, session gotcha #11; `OSX/Version.xcconfig`
+  restored out of the diff). Installed to `/Library/Input Methods/`, codesign
+  VALID, process relaunched.
+- Classifier: 9/9 standalone cases pass.
+- On-device (R1 first): the status item appears from the IME agent process; the
+  wide `icloud` cloud shows filled for Korean / outline for English, toggles on
+  Han/Eng, tints correctly in light & dark; the system input-menu cloud is the
+  square letterbox `icloud` (not distorted).
 
 ## Success criteria
 
-- A wide, undistorted, pretty cloud appears in the menu bar via the status item;
-  FILLED for Korean, OUTLINE for English, updating on Han/Eng toggle.
-- Correct tint in light and dark menu bars.
-- The system input-menu cloud (if shown) is the square letterbox cloud — not
+- A wide, undistorted `icloud` cloud appears in the menu bar via the status item;
+  FILLED (Korean) / OUTLINE (English), updating on Han/Eng toggle, correctly
+  tinted in light & dark.
+- The system input-menu cloud (if shown) is the square letterbox `icloud` — not
   distorted.
 - No input hot-path or pbxproj change.

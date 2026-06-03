@@ -1,7 +1,14 @@
 # Design: Fix squished menu-bar cloud — custom near-square bezier cloud
 
 Date: 2026-06-03
-Status: Approved, pre-implementation. Supersedes the "Sizing" decision in
+Status: Built. The CORE conclusion below stands — the system input-menu icon must
+be SQUARE because that slot distorts non-square images. Two later refinements
+(see `2026-06-03-menubar-statusitem-onedrive-cloud-design.md`): (1) the cloud ART
+became Apple's `icloud` SF Symbol letterboxed in the square (the hand-built custom
+bezier / circle-union explorations were dropped as less pretty); (2) the user also
+wanted a big undistorted cloud, which a square slot cannot give — that lives in a
+new NSStatusItem (width-flexible slot), so this square icon is now the secondary
+(system-menu) indicator. Supersedes the "Sizing" decision in
 `2026-06-03-ime-icon-simplify-design.md`. Scope: macOS app target (`OSX`),
 asset catalog + generator only — no Info.plist, no source-code change.
 
