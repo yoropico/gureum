@@ -146,18 +146,18 @@ public extension InputController { // IMKServerInputHandleEvent
             lastFlags = event.modifierFlags
 
             if changed.contains(.capsLock), Configuration.shared.enableCapslockToToggleInputMode {
-                if InputMethodServer.shared.io.capsLockTriggered {
+                if InputMethodServer.shared.io?.capsLockTriggered == true {
                     dlog(DEBUG_IOKIT_EVENT, "controller detected capslock to change layout")
                     let toggle = { [weak self] in _ = self?.receiver.input(event: .changeLayout(.toggleByCapsLock, true), client: client) }
                     toggle()
-                    InputMethodServer.shared.io.rollback = toggle
+                    InputMethodServer.shared.io?.rollback = toggle
                 } else {
                     dlog(DEBUG_IOKIT_EVENT, "controller detected capslock")
                     (sender as! IMKTextInput).selectMode(receiver.composer.inputMode)
                 }
             }
 
-            if InputMethodServer.shared.io.resolveRightKeyPressed() {
+            if InputMethodServer.shared.io?.resolveRightKeyPressed() == true {
                 let result = receiver.input(event: .changeLayout(.toggleByRightKey, true), client: client)
                 dlog(DEBUG_IOKIT_EVENT, "controller detected right key")
                 return result.processed

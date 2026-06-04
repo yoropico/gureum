@@ -17,5 +17,5 @@ com.yoropico.inputmethod.bomi-input.han3-2011 = "세벌식 2011";
 com.yoropico.inputmethod.bomi-input.han3-2012 = "세벌식 2012";
 com.yoropico.inputmethod.bomi-input.han3finalnoshift = "세벌식 최종 순아래";
 
-CFBundleName = "구름";
-CFBundleDisplayName = "구름 입력기";
+CFBundleName = "bomi-input";
+CFBundleDisplayName = "bomi-input";

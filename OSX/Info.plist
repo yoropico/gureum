@@ -436,7 +436,7 @@
 	<key>HIMHelpAppleTitle</key>
 	<string>한글 입력기 도움말</string>
 	<key>InputMethodConnectionName</key>
-	<string>BomiInputMethod_1_Connection</string>
+	<string>GureumInputMethod_1_Connection</string>
 	<key>InputMethodServerControllerClass</key>
 	<string>GureumInputController</string>
 	<key>InputMethodServerDelegateClass</key>

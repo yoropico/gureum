@@ -161,11 +161,11 @@ final class CloudStatusItemController: NSObject {
             item.isVisible = false
         case .korean, .english:
             item.isVisible = true
-            // bomi-input brand glyph: Korean = ㅂ, English = B (monochrome template -> auto-tints
-            // light/dark; the status-item slot is width-flexible so the tall glyph reads big).
+            // bomi-input brand icon (full color, with background; light/dark appearance variants):
+            // Korean = ㅂ (single-bieup), English = B (single-b).
             let name = state == .korean ? "statusbomi_han" : "statusbomi_eng"
             let image = NSImage(named: NSImage.Name(name))
-            image?.isTemplate = true
+            image?.isTemplate = false
             image?.accessibilityDescription = state == .korean ? "한국어" : "영문"
             item.button?.image = image
         }

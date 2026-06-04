@@ -12,7 +12,7 @@
                 <outlet property="delegate" destination="494" id="537"/>
             </connections>
         </customObject>
-        <customObject id="494" customClass="GureumAppDelegate" customModule="Gureum">
+        <customObject id="494" customClass="GureumAppDelegate" customModule="bomi_input" customModuleProvider="target">
             <connections>
                 <outlet property="menu" destination="538" id="544"/>
             </connections>

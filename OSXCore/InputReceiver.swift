@@ -242,7 +242,7 @@ extension InputReceiver { // IMKStateSetting
 
     //! @brief 자판 전환을 감지한다.
     func setValue(_ value: Any, forTag tag: Int, client sender: IMKTextInput & IMKUnicodeTextInput) {
-        InputMethodServer.shared.io.capsLockDate = nil
+        InputMethodServer.shared.io?.capsLockDate = nil
         dlog(DEBUG_LOGGING, "LOGGING::EVENT::CHANGE-%lu-%@", tag, value as? String ?? "(nonstring)")
         dlog(DEBUG_INPUTCONTROLLER, "** InputController -setValue:forTag:client: with value: %@ / tag: %lx / client: %@", value as? String ?? "(nonstring)", tag, String(describing: controller.client as AnyObject))
         sender.overrideKeyboard(withKeyboardNamed: Configuration.shared.overridingKeyboardName)

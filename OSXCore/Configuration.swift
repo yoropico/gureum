@@ -61,7 +61,7 @@ public enum UpdateMode {
 
 /// 입력기의 환경 설정을 담당하는 오브젝트.
 public class Configuration: UserDefaults {
-    public static let sharedSuiteName = "org.youknowone.Gureum"
+    public static let sharedSuiteName = "com.yoropico.bomi-input"
     public static var shared = Configuration()
 
     var enableCapslockToToggleInputMode: Bool = false

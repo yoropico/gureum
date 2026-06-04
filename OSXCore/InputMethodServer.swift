@@ -148,8 +148,9 @@ public class InputMethodServer {
     let server: IMKServer
     //! @property
     let candidates: IMKCandidates
-    //! @brief  입력기가 inputText: 문맥에 있는지 여부를 저장
-    let io: IOKitty
+    //! @brief  입력기가 inputText: 문맥에 있는지 여부를 저장. IOHID(입력 모니터링) 권한이 없으면
+    //! nil이 된다 — 기본 입력은 IOHID 없이도 동작해야 하므로 force-unwrap 하지 않는다.
+    let io: IOKitty?
 
     convenience init() {
         let bundle = Bundle.main
@@ -172,7 +173,7 @@ public class InputMethodServer {
         candidates = IMKCandidates(server: server, panelType: kIMKSingleColumnScrollingCandidatePanel)
         // candidates.setSelectionKeysKeylayout(TISInputSource.currentKeyboardLayout())
 
-        io = IOKitty()!
+        io = IOKitty()
         dlog(DEBUG_INPUT_SERVER, "\t%@", description)
     }
 

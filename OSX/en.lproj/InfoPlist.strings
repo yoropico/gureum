@@ -17,5 +17,5 @@ com.yoropico.inputmethod.bomi-input.han3finalnoshift = "Han 3set Final No shift 
 com.yoropico.inputmethod.bomi-input.han3-2011 = "Han 3set 2011";
 com.yoropico.inputmethod.bomi-input.han3-2012 = "Han 3set 2012";
 
-CFBundleName = "Gureum";
-CFBundleDisplayName = "Gureum Input Method";
+CFBundleName = "bomi-input";
+CFBundleDisplayName = "bomi-input";
