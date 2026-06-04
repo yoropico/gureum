@@ -9,7 +9,7 @@
         <scene sceneID="lqC-Y3-iGO">
             <objects>
                 <windowController id="pWa-Qg-gE8" customClass="ConfiguraionWindowController" customModule="Gureum" customModuleProvider="target" sceneMemberID="viewController">
-                    <window key="window" title="구름 환경설정" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="66I-Xz-bUA">
+                    <window key="window" title="bomi-input 환경설정" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="66I-Xz-bUA">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="245" y="301" width="480" height="270"/>

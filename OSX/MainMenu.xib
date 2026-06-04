@@ -19,7 +19,7 @@
         </customObject>
         <menu id="538">
             <items>
-                <menuItem title="구름 입력기에 관하여" id="539">
+                <menuItem title="bomi-input에 관하여" id="539">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="showStandardAboutPanel:" target="-1" id="yba-6W-HBg"/>

@@ -1,16 +1,12 @@
 /* Localized versions of Info.plist keys */
 
 com.yoropico.inputmethod.bomi-input.system = "Roman";
-com.yoropico.inputmethod.bomi-input.qwerty = "QWERTY (Deprecated)";
-com.yoropico.inputmethod.bomi-input.dvorak = "Dvorak (Deprecated)";
-com.yoropico.inputmethod.bomi-input.colemak = "Colemak (Deprecated)";
 com.yoropico.inputmethod.bomi-input.han2 = "Han 2set";
 com.yoropico.inputmethod.bomi-input.han2classic = "Han 2set Classic";
 com.yoropico.inputmethod.bomi-input.han3final = "Han 3set Final";
 com.yoropico.inputmethod.bomi-input.han390 = "Han 3set 390";
 com.yoropico.inputmethod.bomi-input.han3noshift = "Han 3set No shift";
 com.yoropico.inputmethod.bomi-input.han3classic = "Han 3set Classic";
-com.yoropico.inputmethod.bomi-input.han3layout2 = "Han 3set Layout 2set (For Testing)";
 com.yoropico.inputmethod.bomi-input.hanroman = "Han Roman";
 com.yoropico.inputmethod.bomi-input.hanahnmatae = "Han Ahnmatae";
 com.yoropico.inputmethod.bomi-input.han3finalnoshift = "Han 3set Final No shift (Gureum)";

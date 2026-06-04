@@ -49,52 +49,6 @@
 				<key>tsInputModeScriptKey</key>
 				<string>smRoman</string>
 			</dict>
-			<key>com.yoropico.inputmethod.bomi-input.colemak</key>
-			<dict>
-				<key>TISInputSourceID</key>
-				<string>com.yoropico.inputmethod.bomi-input.colemak</string>
-				<key>TISIntendedLanguage</key>
-				<string>en</string>
-				<key>TICapsLockLanguageSwitchCapable</key>
-				<true/>
-				<key>tsInputModeAlternateMenuIconFileKey</key>
-				<string>eng.png</string>
-				<key>tsInputModeDefaultStateKey</key>
-				<false/>
-				<key>tsInputModeIsVisibleKey</key>
-				<true/>
-				<key>tsInputModeMenuIconFileKey</key>
-				<string>eng.png</string>
-				<key>tsInputModePaletteIconFileKey</key>
-				<string>eng.png</string>
-				<key>tsInputModePrimaryInScriptKey</key>
-				<true/>
-				<key>tsInputModeScriptKey</key>
-				<string>smRoman</string>
-			</dict>
-			<key>com.yoropico.inputmethod.bomi-input.dvorak</key>
-			<dict>
-				<key>TISInputSourceID</key>
-				<string>com.yoropico.inputmethod.bomi-input.dvorak</string>
-				<key>TISIntendedLanguage</key>
-				<string>en</string>
-				<key>TICapsLockLanguageSwitchCapable</key>
-				<true/>
-				<key>tsInputModeAlternateMenuIconFileKey</key>
-				<string>eng.png</string>
-				<key>tsInputModeDefaultStateKey</key>
-				<false/>
-				<key>tsInputModeIsVisibleKey</key>
-				<true/>
-				<key>tsInputModeMenuIconFileKey</key>
-				<string>eng.png</string>
-				<key>tsInputModePaletteIconFileKey</key>
-				<string>eng.png</string>
-				<key>tsInputModePrimaryInScriptKey</key>
-				<true/>
-				<key>tsInputModeScriptKey</key>
-				<string>smRoman</string>
-			</dict>
 			<key>com.yoropico.inputmethod.bomi-input.han2</key>
 			<dict>
 				<key>KeyboardLayout</key>
@@ -285,31 +239,6 @@
 				<key>tsInputModeScriptKey</key>
 				<string>smKorean</string>
 			</dict>
-			<key>com.yoropico.inputmethod.bomi-input.han3layout2</key>
-			<dict>
-				<key>KeyboardLayout</key>
-				<string>com.apple.inputmethod.Korean.2SetKorean</string>
-				<key>TISInputSourceID</key>
-				<string>com.yoropico.inputmethod.bomi-input.han3layout2</string>
-				<key>TISIntendedLanguage</key>
-				<string>ko</string>
-				<key>TICapsLockLanguageSwitchCapable</key>
-				<true/>
-				<key>tsInputModeAlternateMenuIconFileKey</key>
-				<string>han3.png</string>
-				<key>tsInputModeDefaultStateKey</key>
-				<false/>
-				<key>tsInputModeIsVisibleKey</key>
-				<true/>
-				<key>tsInputModeMenuIconFileKey</key>
-				<string>han3.png</string>
-				<key>tsInputModePaletteIconFileKey</key>
-				<string>han3.png</string>
-				<key>tsInputModePrimaryInScriptKey</key>
-				<false/>
-				<key>tsInputModeScriptKey</key>
-				<string>smKorean</string>
-			</dict>
 			<key>com.yoropico.inputmethod.bomi-input.han3noshift</key>
 			<dict>
 				<key>TISInputSourceID</key>
@@ -379,38 +308,10 @@
 				<key>tsInputModeScriptKey</key>
 				<string>smKorean</string>
 			</dict>
-			<key>com.yoropico.inputmethod.bomi-input.qwerty</key>
-			<dict>
-				<key>KeyboardLayout</key>
-				<string>com.apple.keylayout.ABC</string>
-				<key>TISInputSourceID</key>
-				<string>com.yoropico.inputmethod.bomi-input.qwerty</string>
-				<key>TISIntendedLanguage</key>
-				<string>en</string>
-				<key>TICapsLockLanguageSwitchCapable</key>
-				<true/>
-				<key>tsInputModeAlternateMenuIconFileKey</key>
-				<string>qwerty.png</string>
-				<key>tsInputModeDefaultStateKey</key>
-				<false/>
-				<key>tsInputModeIsVisibleKey</key>
-				<true/>
-				<key>tsInputModeMenuIconFileKey</key>
-				<string>qwerty.png</string>
-				<key>tsInputModePaletteIconFileKey</key>
-				<string>qwerty.png</string>
-				<key>tsInputModePrimaryInScriptKey</key>
-				<true/>
-				<key>tsInputModeScriptKey</key>
-				<string>smRoman</string>
-			</dict>
 		</dict>
 		<key>tsVisibleInputModeOrderedArrayKey</key>
 		<array>
 			<string>com.yoropico.inputmethod.bomi-input.system</string>
-			<string>com.yoropico.inputmethod.bomi-input.qwerty</string>
-			<string>com.yoropico.inputmethod.bomi-input.dvorak</string>
-			<string>com.yoropico.inputmethod.bomi-input.colemak</string>
 			<string>com.yoropico.inputmethod.bomi-input.han2</string>
 			<string>com.yoropico.inputmethod.bomi-input.han2classic</string>
 			<string>com.yoropico.inputmethod.bomi-input.han3final</string>

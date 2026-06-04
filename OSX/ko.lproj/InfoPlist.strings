@@ -1,16 +1,12 @@
 /* Localized versions of Info.plist keys */
 
 com.yoropico.inputmethod.bomi-input.system = "로마자";
-com.yoropico.inputmethod.bomi-input.qwerty = "쿼티 (제거예정)";
-com.yoropico.inputmethod.bomi-input.dvorak = "드보락 (제거예정)";
-com.yoropico.inputmethod.bomi-input.colemak = "콜맥 (제거예정)";
 com.yoropico.inputmethod.bomi-input.han2 = "두벌식";
 com.yoropico.inputmethod.bomi-input.han2classic = "두벌식 옛글";
 com.yoropico.inputmethod.bomi-input.han3final = "세벌식 최종";
 com.yoropico.inputmethod.bomi-input.han390 = "세벌식 390";
 com.yoropico.inputmethod.bomi-input.han3noshift = "세벌식 순아래";
 com.yoropico.inputmethod.bomi-input.han3classic = "세벌식 옛글";
-com.yoropico.inputmethod.bomi-input.han3layout2 = "세벌식 두벌식 배치 (시험용)";
 com.yoropico.inputmethod.bomi-input.hanroman = "한글 로마자";
 com.yoropico.inputmethod.bomi-input.hanahnmatae = "안마태";
 com.yoropico.inputmethod.bomi-input.han3-2011 = "세벌식 2011";

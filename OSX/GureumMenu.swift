@@ -40,7 +40,7 @@ extension InputController {
                 let alert = NSAlert()
                 alert.messageText = "bomi-input \(title) 확인"
                 alert.addButton(withTitle: "확인")
-                alert.informativeText = "\(title) 정보에 접근할 수 없습니다. 인터넷에 연결되어 있지 않거나 구름 업데이트의 버그일 수 있습니다."
+                alert.informativeText = "\(title) 정보에 접근할 수 없습니다. 인터넷에 연결되어 있지 않거나 bomi-input 업데이트의 버그일 수 있습니다."
                 alert.runModal()
                 return
             }
@@ -67,7 +67,7 @@ extension InputController {
                 switch result {
                 case .success:
                     done.messageText = "업데이트 완료"
-                    done.informativeText = "새 버전을 설치했습니다. 로그아웃 후 다시 로그인하면 적용됩니다.\n\n적용 후 입력 소스 목록에서 구름이 사라졌으면 시스템 설정 > 키보드 > 입력 소스에서 다시 추가하고, 한/영 전환이 안 되면 시스템 설정 > 개인정보 보호 및 보안 > 입력 모니터링에서 구름을 다시 허용한 뒤 로그아웃·로그인 해 주세요."
+                    done.informativeText = "새 버전을 설치했습니다. 로그아웃 후 다시 로그인하면 적용됩니다.\n\n적용 후 입력 소스 목록에서 bomi-input이 사라졌으면 시스템 설정 > 키보드 > 입력 소스에서 다시 추가하고, 한/영 전환이 안 되면 시스템 설정 > 개인정보 보호 및 보안 > 입력 모니터링에서 bomi-input을 다시 허용한 뒤 로그아웃·로그인 해 주세요."
                 case let .failure(error):
                     done.messageText = "업데이트 실패"
                     switch error {
