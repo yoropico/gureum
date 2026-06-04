@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/usr/bin/log show *)",
+      "Bash(sips -g *)",
+      "Bash(codesign --verify *)",
+      "Bash(codesign -dv *)",
+      "Bash(codesign -d *)",
+      "Bash(plutil -p *)",
+      "Bash(plutil -extract *)",
+      "Bash(plutil -lint *)",
+      "Bash(assetutil --info *)",
+      "Bash(xcodebuild -list *)",
+      "mcp__claude_ai_exam__session_load",
+      "mcp__claude_ai_exam__mcp_guide"
+    ]
+  }
+}
