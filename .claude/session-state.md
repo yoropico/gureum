@@ -1,14 +1,14 @@
 ## Session state (devmode)
-- Updated: 2026-06-05. **origin/main == `a14dc5d`; local main = a14dc5d + UNCOMMITTED P2 work** (4 files,
-  see below). Tree otherwise clean. Only `main`.
+- Updated: 2026-06-05. **Inline P2 committed + pushed** (feature `3b36d95`; devmode tracking follows).
+  `main` tracks `origin/main`, tree clean (re-check `git log`/`git status` on resume). Only `main`.
 - Project: **bomi-input** (macOS IME, rebranded from Gureum). Durable build/sign/install commands,
   signing identity, git hazards, and the xib-module gotcha live in **CLAUDE.md — read it on resume.**
 
 ### DIAGNOSIS — where things stand
 - The bomi-input rebrand is **functional and shipped**. Korean input works. UI is fully de-Gureum'd.
 - **DKST inline direct-input** is now at **P1 + P2 done, still DORMANT** behind the default-FALSE kill-switch
-  `inlineCompositionEnabled`. P1 (ecd254f) is committed/pushed; **P2 (engine policy + blocklist) is implemented
-  but UNCOMMITTED** (this session). Still NOT usable on-device until P3 + flipping the switch + dogfood.
+  `inlineCompositionEnabled`. P1 (ecd254f) and **P2 (engine policy + blocklist, 3b36d95) are committed + pushed**.
+  Still NOT usable on-device until P3 + flipping the switch + dogfood.
   No other DKST feature (Shift+jamo, user dictionary) is started.
 
 ### DONE & SHIPPED (origin/main == a14dc5d)
@@ -33,7 +33,7 @@
     github.com/yoropico/bomi-input and 버그 알리기 → .../issues.
 
 ### DKST FEATURE ROADMAP (the "다른 입력기 기능 추가" work)
-1. **Inline direct-input** — 🟡 P1 + P2 DONE (dormant). P2 (UNCOMMITTED this session): WebKit/Chromium
+1. **Inline direct-input** — 🟡 P1 + P2 DONE (dormant). P2 (3b36d95, pushed): WebKit/Chromium
    engine policy + user force-marked blocklist + global always-marked. Files: OSXCore/InlineComposition.swift
    (pure classifiers bundleIdentifierUsesWebKitTextStack / …ChromiumMarkedTextPolicy / …MatchesForcedMarkedList,
    classify chain steps 3–5 wired), OSXCore/InputController.swift (LiveClientCapabilities.forcedMarkedBundleIDs +
@@ -53,7 +53,6 @@
   keyDown + immediate \r at commit (drop the 20ms timer). Needs a release build/install for daily use.
 
 ### NEXT (pick one)
-- **Commit P2** (4 files, uncommitted) — then push (needs fresh per-instance auth).
 - Inline **P3** (first-roman leak repair, eager-sync, Preferences UI for toggles + blocklist editor) — last
   step before flipping the kill-switch ON.
 - Shift+jamo custom output.
