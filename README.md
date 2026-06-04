@@ -112,9 +112,3 @@ upstream에 기여 제안될 수 있습니다.
 bomi-input의 소스 코드는 구름 입력기에서 이어받아 BSD와 LGPL로 배포됩니다.
 `libhangul`은 LGPL 라이선스를 따릅니다. 구름의 원본 로고·아이콘(CC BY-NC-ND)은
 제거했고, bomi-input의 앱 아이콘·인디케이터는 이 포크에서 자체 제작했습니다.
-
-## 만든 사람들
-
-기반이 된 구름 입력기는 [많은 분들의 도움](https://github.com/gureum/gureum/graphs/contributors)으로 함께 개발되고 있습니다. 원본 프로젝트의 재정 후원은 [후원하기](https://opencollective.com/gureum/contribute)에서 할 수 있습니다. `bomi-input`은 [yoropico](https://github.com/yoropico)가 구름 입력기를 포크해 리브랜드한 것입니다.
-
-[![](https://opencollective.com/gureum/contributors.svg?width=890&button=false)](https://github.com/gureum/gureum/graphs/contributors)
