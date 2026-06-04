@@ -18,7 +18,7 @@ final class PreferencePaneViewController: NSViewController {
         let rect = NSRect(x: 0, y: 0, width: 200, height: 100)
         let label = NSTextView(frame: rect)
         label.isEditable = false
-        label.string = "환경설정 GUI 읽기에 실패했습니다. 버그 리포트를 남겨주세요.\n\nhttps://github.com/gureum/gureum/issues"
+        label.string = "환경설정 GUI 읽기에 실패했습니다. 버그 리포트를 남겨주세요.\n\nhttps://github.com/yoropico/bomi-input/issues"
         let view = NSView(frame: rect)
         view.addSubview(label)
         return view

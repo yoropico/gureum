@@ -1216,8 +1216,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.youknowone.inputmethod.Gureum;
-				PRODUCT_NAME = Gureum;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yoropico.inputmethod.bomi-input;
+				PRODUCT_NAME = "bomi-input";
 				SWIFT_OBJC_BRIDGING_HEADER = OSX/Bridge.h;
 				WRAPPER_EXTENSION = app;
 			};
@@ -1240,8 +1240,8 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.youknowone.inputmethod.Gureum;
-				PRODUCT_NAME = Gureum;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yoropico.inputmethod.bomi-input;
+				PRODUCT_NAME = "bomi-input";
 				SWIFT_OBJC_BRIDGING_HEADER = OSX/Bridge.h;
 				WRAPPER_EXTENSION = app;
 			};
@@ -1607,7 +1607,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Input Methods";
-				PRODUCT_NAME = Gureum;
+				PRODUCT_NAME = "bomi-input";
 			};
 			name = Debug;
 		};
@@ -1615,7 +1615,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Input Methods";
-				PRODUCT_NAME = Gureum;
+				PRODUCT_NAME = "bomi-input";
 			};
 			name = Release;
 		};

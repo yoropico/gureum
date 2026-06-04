@@ -126,7 +126,7 @@ final class CloudStatusItemController: NSObject {
 
     /// 순수 함수(단위 검증 대상): 입력 소스 → 보여줄 구름(또는 숨김).
     static func classify(inputSourceID id: String, primaryLanguage lang: String?) -> CloudState {
-        let prefix = "org.youknowone.inputmethod.Gureum."
+        let prefix = "com.yoropico.inputmethod.bomi-input."
         guard id.hasPrefix(prefix) else { return .hidden } // 구름 외 입력 소스 → 숨김
         if let lang = lang { return lang == "ko" ? .korean : .english }
         // 언어 메타데이터가 없을 때만 모드 id로 추론(로마자 레이아웃은 영문).
@@ -161,14 +161,12 @@ final class CloudStatusItemController: NSObject {
             item.isVisible = false
         case .korean, .english:
             item.isVisible = true
-            // Apple SF Symbol cloud, drawn directly (vector -> crisp; status-item slot is
-            // width-flexible -> the wide cloud shows undistorted). Korean = filled, English = outline.
-            let symbol = state == .korean ? "icloud.fill" : "icloud"
-            let config = NSImage.SymbolConfiguration(pointSize: 21, weight: .regular)
-            let image = NSImage(systemSymbolName: symbol,
-                                accessibilityDescription: state == .korean ? "한국어" : "영문")?
-                .withSymbolConfiguration(config)
+            // bomi-input brand glyph: Korean = ㅂ, English = B (monochrome template -> auto-tints
+            // light/dark; the status-item slot is width-flexible so the tall glyph reads big).
+            let name = state == .korean ? "statusbomi_han" : "statusbomi_eng"
+            let image = NSImage(named: NSImage.Name(name))
             image?.isTemplate = true
+            image?.accessibilityDescription = state == .korean ? "한국어" : "영문"
             item.button?.image = image
         }
     }
@@ -177,7 +175,7 @@ final class CloudStatusItemController: NSObject {
         let menu = NSMenu()
         let prefs = NSMenuItem(title: "환경설정…", action: #selector(openPreferences), keyEquivalent: "")
         prefs.target = self
-        let about = NSMenuItem(title: "구름 입력기 정보…", action: #selector(showAbout), keyEquivalent: "")
+        let about = NSMenuItem(title: "bomi-input 정보…", action: #selector(showAbout), keyEquivalent: "")
         about.target = self
         menu.addItem(prefs)
         menu.addItem(.separator())

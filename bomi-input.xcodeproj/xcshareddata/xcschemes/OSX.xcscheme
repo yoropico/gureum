@@ -17,7 +17,7 @@
                BlueprintIdentifier = "38162DF2141263270077AA2D"
                BuildableName = "Gureum.app"
                BlueprintName = "OSX"
-               ReferencedContainer = "container:Gureum.xcodeproj">
+               ReferencedContainer = "container:bomi-input.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -31,7 +31,7 @@
                BlueprintIdentifier = "38BFE7F918B45419004B2B2E"
                BuildableName = "OSXTests.xctest"
                BlueprintName = "OSXTests"
-               ReferencedContainer = "container:Gureum.xcodeproj">
+               ReferencedContainer = "container:bomi-input.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -47,7 +47,7 @@
             BlueprintIdentifier = "38162DF2141263270077AA2D"
             BuildableName = "Gureum.app"
             BlueprintName = "OSX"
-            ReferencedContainer = "container:Gureum.xcodeproj">
+            ReferencedContainer = "container:bomi-input.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -58,7 +58,7 @@
                BlueprintIdentifier = "38BFE7F918B45419004B2B2E"
                BuildableName = "OSXTests.xctest"
                BlueprintName = "OSXTests"
-               ReferencedContainer = "container:Gureum.xcodeproj">
+               ReferencedContainer = "container:bomi-input.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -82,7 +82,7 @@
             BlueprintIdentifier = "38162DF2141263270077AA2D"
             BuildableName = "Gureum.app"
             BlueprintName = "OSX"
-            ReferencedContainer = "container:Gureum.xcodeproj">
+            ReferencedContainer = "container:bomi-input.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -99,7 +99,7 @@
             BlueprintIdentifier = "38162DF2141263270077AA2D"
             BuildableName = "Gureum.app"
             BlueprintName = "OSX"
-            ReferencedContainer = "container:Gureum.xcodeproj">
+            ReferencedContainer = "container:bomi-input.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
@@ -122,7 +122,7 @@
                      BlueprintIdentifier = "38162DF2141263270077AA2D"
                      BuildableName = "Gureum.app"
                      BlueprintName = "OSX"
-                     ReferencedContainer = "container:Gureum.xcodeproj">
+                     ReferencedContainer = "container:bomi-input.xcodeproj">
                   </BuildableReference>
                </EnvironmentBuildable>
             </ActionContent>

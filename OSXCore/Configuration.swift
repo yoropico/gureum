@@ -89,9 +89,9 @@ public class Configuration: UserDefaults {
         super.init(suiteName: suiteName)
 
         register(defaults: [
-            ConfigurationName.lastHangulInputMode: "org.youknowone.inputmethod.Gureum.han2",
-            ConfigurationName.lastRomanInputMode: "org.youknowone.inputmethod.Gureum.qwerty",
-            ConfigurationName.lastInputMode: "org.youknowone.inputmethod.Gureum.qwerty",
+            ConfigurationName.lastHangulInputMode: "com.yoropico.inputmethod.bomi-input.han2",
+            ConfigurationName.lastRomanInputMode: "com.yoropico.inputmethod.bomi-input.qwerty",
+            ConfigurationName.lastInputMode: "com.yoropico.inputmethod.bomi-input.qwerty",
 
             ConfigurationName.inputModeSearchKey: Configuration.convertShortcutToConfiguration((.return, .option)),
             ConfigurationName.optionKeyBehavior: 1,

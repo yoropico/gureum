@@ -92,9 +92,9 @@ class UpdateManager {
         let urlString: String
         switch mode {
         case .Stable:
-            urlString = "https://api.github.com/repos/yoropico/gureum/releases/latest"
+            urlString = "https://api.github.com/repos/yoropico/bomi-input/releases/latest"
         case .Experimental:
-            urlString = "https://api.github.com/repos/yoropico/gureum/releases"
+            urlString = "https://api.github.com/repos/yoropico/bomi-input/releases"
         }
         var urlRequest = URLRequest(url: URL(string: urlString)!)
         urlRequest.timeoutInterval = 5.0
@@ -141,7 +141,7 @@ class UpdateManager {
     /// 전달(delivery)과 분리해 단위 테스트에서 컨텐츠만 검증할 수 있도록 한다.
     class func updateNotificationContent(info: VersionInfo) -> UNMutableNotificationContent {
         let content = UNMutableNotificationContent()
-        var title = "구름 입력기 업데이트 알림"
+        var title = "bomi-input 업데이트 알림"
         if info.experimental {
             title += " (실험 버전)"
         }

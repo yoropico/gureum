@@ -76,7 +76,7 @@ class GureumTests: XCTestCase {
         Configuration.shared.inputModeExchangeKey = Configuration.Shortcut(.space, .shift)
         for app in apps {
             app.client.string = ""
-            app.controller.setValue("org.youknowone.inputmethod.Gureum.qwerty", forTag: kTextServiceInputModePropertyTag, client: app.client)
+            app.controller.setValue("com.yoropico.inputmethod.bomi-input.qwerty", forTag: kTextServiceInputModePropertyTag, client: app.client)
             app.inputFlags(.capsLock)
 
             app.inputText(" ", key: .space, modifiers: .shift)
@@ -88,7 +88,7 @@ class GureumTests: XCTestCase {
     func testLayoutChangeCommit() {
         for app in apps {
             app.client.string = ""
-            app.controller.setValue("org.youknowone.inputmethod.Gureum.han2", forTag: kTextServiceInputModePropertyTag, client: app.client)
+            app.controller.setValue("com.yoropico.inputmethod.bomi-input.han2", forTag: kTextServiceInputModePropertyTag, client: app.client)
             app.inputKey(.ansiG)
             XCTAssertEqual("ㅎ", app.client.string, "buffer: \(app.client.string), app: \(app)")
             app.inputFlags(.capsLock)
@@ -103,7 +103,7 @@ class GureumTests: XCTestCase {
         let componentInputModeDict = infoDictionary["ComponentInputModeDict"] as? [String: Any]
         let inputModes = componentInputModeDict?["tsInputModeListKey"] as? [String: [String: Any]]
         let missingCapableInputModes = inputModes?
-            .filter { $0.key.hasPrefix("org.youknowone.inputmethod.Gureum.") }
+            .filter { $0.key.hasPrefix("com.yoropico.inputmethod.bomi-input.") }
             .compactMap { inputMode, properties in
                 (properties["TICapsLockLanguageSwitchCapable"] as? Bool) == true ? nil : inputMode
             }
@@ -406,7 +406,7 @@ class GureumTests: XCTestCase {
     func testDvorak() {
         for app in apps {
             app.client.string = ""
-            app.controller.setValue("org.youknowone.inputmethod.Gureum.dvorak", forTag: kTextServiceInputModePropertyTag, client: app.client)
+            app.controller.setValue("com.yoropico.inputmethod.bomi-input.dvorak", forTag: kTextServiceInputModePropertyTag, client: app.client)
 
             app.inputKey(.ansiJ)
             app.inputKey(.ansiD)
@@ -420,7 +420,7 @@ class GureumTests: XCTestCase {
     func test3Number() {
         for app in apps {
             app.client.string = ""
-            app.controller.setValue("org.youknowone.inputmethod.Gureum.han3final", forTag: kTextServiceInputModePropertyTag, client: app.client)
+            app.controller.setValue("com.yoropico.inputmethod.bomi-input.han3final", forTag: kTextServiceInputModePropertyTag, client: app.client)
             app.inputKey(.ansiK, modifiers: .shift)
             XCTAssertEqual("2", app.client.string, "buffer: \(app.client.string) app: \(app)")
             XCTAssertEqual("", app.client.markedString(), "buffer: \(app.client.string) app: \(app)")
@@ -430,7 +430,7 @@ class GureumTests: XCTestCase {
     func testBlock() {
         for app in apps {
             app.client.string = ""
-            app.controller.setValue("org.youknowone.inputmethod.Gureum.qwerty", forTag: kTextServiceInputModePropertyTag, client: app.client)
+            app.controller.setValue("com.yoropico.inputmethod.bomi-input.qwerty", forTag: kTextServiceInputModePropertyTag, client: app.client)
             app.inputKey(.ansiM)
             app.inputKey(.ansiF)
             app.inputKey(.ansiS)
@@ -453,7 +453,7 @@ class GureumTests: XCTestCase {
     func test3final() {
         for app in apps {
             app.client.string = ""
-            app.controller.setValue("org.youknowone.inputmethod.Gureum.han3final", forTag: kTextServiceInputModePropertyTag, client: app.client)
+            app.controller.setValue("com.yoropico.inputmethod.bomi-input.han3final", forTag: kTextServiceInputModePropertyTag, client: app.client)
             app.inputKey(.ansiM)
             app.inputKey(.ansiF)
             app.inputKey(.ansiS)

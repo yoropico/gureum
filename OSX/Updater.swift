@@ -25,7 +25,7 @@ enum UpdaterError: Error {
 final class Updater {
     static let shared = Updater()
 
-    private let installPath = "/Library/Input Methods/Gureum.app"
+    private let installPath = "/Library/Input Methods/bomi-input.app"
     private let inputMethodsDir = "/Library/Input Methods"
     private let expectedTeamIdentifier = "G7J2LY4LP9"
     private let lsregisterPath =
@@ -42,10 +42,10 @@ final class Updater {
         }
 
         let workDir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("GureumUpdate-\(UUID().uuidString)")
+            .appendingPathComponent("bomi-inputUpdate-\(UUID().uuidString)")
         let destination: DownloadRequest.Destination = { _, _ in
             try? FileManager.default.createDirectory(at: workDir, withIntermediateDirectories: true)
-            return (workDir.appendingPathComponent("Gureum.zip"), [.removePreviousFile, .createIntermediateDirectories])
+            return (workDir.appendingPathComponent("bomi-input.zip"), [.removePreviousFile, .createIntermediateDirectories])
         }
 
         AF.download(downloadURL, to: destination).validate().response { [weak self] response in
@@ -80,7 +80,7 @@ final class Updater {
 
         // 셸 명령에 zip이 정한 번들 이름이 끼어드는 것을 막기 위해, 검증된 앱을
         // 통제된 고정 경로(UUID 디렉터리 + 고정 이름)로 옮긴 뒤 그 경로로 설치한다.
-        let safeAppURL = workDir.appendingPathComponent("Gureum.app")
+        let safeAppURL = workDir.appendingPathComponent("bomi-input.app")
         try? FileManager.default.removeItem(at: safeAppURL)
         do {
             try FileManager.default.moveItem(at: appURL, to: safeAppURL)
@@ -101,7 +101,7 @@ final class Updater {
         // 셸 경로는 작은따옴표로 감싼다(AppleScript 문자열은 큰따옴표). src는 통제된
         // 고정 경로이므로 주입 위험이 없다.
         let shell = "rm -rf '\(installPath)' && cp -R '\(src)' '\(inputMethodsDir)/' && "
-            + "/usr/bin/killall -TERM Gureum 2>/dev/null; '\(lsregisterPath)' -f '\(installPath)'; true"
+            + "/usr/bin/killall -TERM bomi-input 2>/dev/null; '\(lsregisterPath)' -f '\(installPath)'; true"
         let source = "do shell script \"\(shell)\" with administrator privileges"
 
         DispatchQueue.global().async { [weak self] in

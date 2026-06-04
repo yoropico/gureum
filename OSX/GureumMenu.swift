@@ -38,7 +38,7 @@ extension InputController {
         UpdateManager.shared.requestVersionInfo(mode: mode) { info in
             guard let info = info else {
                 let alert = NSAlert()
-                alert.messageText = "구름 입력기 \(title) 확인"
+                alert.messageText = "bomi-input \(title) 확인"
                 alert.addButton(withTitle: "확인")
                 alert.informativeText = "\(title) 정보에 접근할 수 없습니다. 인터넷에 연결되어 있지 않거나 구름 업데이트의 버그일 수 있습니다."
                 alert.runModal()
@@ -46,9 +46,9 @@ extension InputController {
             }
             guard UpdateManager.isNewer(info.update.version, than: info.current ?? "") else {
                 let alert = NSAlert()
-                alert.messageText = "구름 입력기 \(title) 확인"
+                alert.messageText = "bomi-input \(title) 확인"
                 alert.addButton(withTitle: "확인")
-                alert.informativeText = "현재 사용하고 있는 구름 입력기 \(info.current ?? "-") 는 최신 \(version)입니다."
+                alert.informativeText = "현재 사용하고 있는 bomi-input \(info.current ?? "-") 는 최신 \(version)입니다."
                 alert.runModal()
                 return
             }
@@ -57,7 +57,7 @@ extension InputController {
                 message += "\n\n\(info.update.description)"
             }
             let alert = NSAlert()
-            alert.messageText = "구름 입력기 \(title) 확인"
+            alert.messageText = "bomi-input \(title) 확인"
             alert.informativeText = message
             alert.addButton(withTitle: "지금 업데이트")
             alert.addButton(withTitle: "나중에")

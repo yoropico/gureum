@@ -17,37 +17,37 @@ import Foundation
 /// 각 케이스의 원시 값은 그에 대응하는 input method의 번들 식별자를 나타낸다.
 enum GureumInputSource: String {
     /// 로마자 시스템 자판.
-    case system = "org.youknowone.inputmethod.Gureum.system"
+    case system = "com.yoropico.inputmethod.bomi-input.system"
     /// 로마자 쿼티 자판.
-    case qwerty = "org.youknowone.inputmethod.Gureum.qwerty"
+    case qwerty = "com.yoropico.inputmethod.bomi-input.qwerty"
     /// 로마자 드보락 자판.
-    case dvorak = "org.youknowone.inputmethod.Gureum.dvorak"
+    case dvorak = "com.yoropico.inputmethod.bomi-input.dvorak"
     /// 로마자 콜맥 자판.
-    case colemak = "org.youknowone.inputmethod.Gureum.colemak"
+    case colemak = "com.yoropico.inputmethod.bomi-input.colemak"
     /// 한글 두벌식 자판.
-    case han2 = "org.youknowone.inputmethod.Gureum.han2"
+    case han2 = "com.yoropico.inputmethod.bomi-input.han2"
     /// 한글 두벌식 옛글 자판.
-    case han2Classic = "org.youknowone.inputmethod.Gureum.han2classic"
+    case han2Classic = "com.yoropico.inputmethod.bomi-input.han2classic"
     /// 한글 세벌식 최종 자판.
-    case han3Final = "org.youknowone.inputmethod.Gureum.han3final"
+    case han3Final = "com.yoropico.inputmethod.bomi-input.han3final"
     /// 한글 세벌식 390 자판.
-    case han390 = "org.youknowone.inputmethod.Gureum.han390"
+    case han390 = "com.yoropico.inputmethod.bomi-input.han390"
     /// 한글 세벌식 순아래 자판.
-    case han3NoShift = "org.youknowone.inputmethod.Gureum.han3noshift"
+    case han3NoShift = "com.yoropico.inputmethod.bomi-input.han3noshift"
     /// 한글 세벌식 옛글 자판.
-    case han3Classic = "org.youknowone.inputmethod.Gureum.han3classic"
+    case han3Classic = "com.yoropico.inputmethod.bomi-input.han3classic"
     /// 한글 세벌식 두벌식 배치 자판.
-    case han3Layout2 = "org.youknowone.inputmethod.Gureum.han3layout2"
+    case han3Layout2 = "com.yoropico.inputmethod.bomi-input.han3layout2"
     /// 한글 안마태 자판.
-    case hanAhnmatae = "org.youknowone.inputmethod.Gureum.hanahnmatae"
+    case hanAhnmatae = "com.yoropico.inputmethod.bomi-input.hanahnmatae"
     /// 한글 로마자 자판.
-    case hanRoman = "org.youknowone.inputmethod.Gureum.hanroman"
+    case hanRoman = "com.yoropico.inputmethod.bomi-input.hanroman"
     /// 한글 세벌식 최종 순아래 자판.
-    case han3FinalNoShift = "org.youknowone.inputmethod.Gureum.han3finalnoshift"
+    case han3FinalNoShift = "com.yoropico.inputmethod.bomi-input.han3finalnoshift"
     /// 한글 세벌식 2011 자판.
-    case han3_2011 = "org.youknowone.inputmethod.Gureum.han3-2011"
+    case han3_2011 = "com.yoropico.inputmethod.bomi-input.han3-2011"
     /// 한글 세벌식 2012 자판.
-    case han3_2012 = "org.youknowone.inputmethod.Gureum.han3-2012"
+    case han3_2012 = "com.yoropico.inputmethod.bomi-input.han3-2012"
 }
 
 // MARK: - GureumComposer 클래스

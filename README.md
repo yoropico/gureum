@@ -38,9 +38,9 @@ upstream(`gureum/gureum`) 대비 이 포크에서 추가된 변경입니다. 전
 
 ### 버그 수정·현대화 (1.14.0)
 
-- **한글 입력이 영어로 고착되는 문제 수정** ([#2](https://github.com/yoropico/gureum/pull/2)) — Edge/Chromium처럼 포커스가 빠르게 바뀌는 앱에서 입력 소스는 한글로 보이는데 실제로는 영어가 입력되던 문제를 고쳤습니다. 새 입력 세션이 직전 한/영 상태를 이어받도록 했습니다.
-- **알림 시스템 현대화** ([#1](https://github.com/yoropico/gureum/pull/1)) — deprecated된 `NSUserNotification`을 최신 `UserNotifications` 프레임워크로 마이그레이션했습니다.
-- **Preferences 빌드 오류 수정** ([#1](https://github.com/yoropico/gureum/pull/1)) — Xcode의 explicitly-built modules 환경에서 `SwiftIOKit` 대신 `IOKit.hid`를 사용하도록 바꿔 빌드 실패를 해결했습니다.
+- **한글 입력이 영어로 고착되는 문제 수정** ([#2](https://github.com/yoropico/bomi-input/pull/2)) — Edge/Chromium처럼 포커스가 빠르게 바뀌는 앱에서 입력 소스는 한글로 보이는데 실제로는 영어가 입력되던 문제를 고쳤습니다. 새 입력 세션이 직전 한/영 상태를 이어받도록 했습니다.
+- **알림 시스템 현대화** ([#1](https://github.com/yoropico/bomi-input/pull/1)) — deprecated된 `NSUserNotification`을 최신 `UserNotifications` 프레임워크로 마이그레이션했습니다.
+- **Preferences 빌드 오류 수정** ([#1](https://github.com/yoropico/bomi-input/pull/1)) — Xcode의 explicitly-built modules 환경에서 `SwiftIOKit` 대신 `IOKit.hid`를 사용하도록 바꿔 빌드 실패를 해결했습니다.
 
 ## 설치
 
@@ -54,7 +54,7 @@ upstream(`gureum/gureum`) 대비 이 포크에서 추가된 변경입니다. 전
 전체 개발 환경 설정과 빌드 방법은 [개발하기(HACKING.md)](HACKING.md) 문서를 참고해 주세요. 요약하면 다음과 같습니다.
 
 ```sh
-git clone https://github.com/yoropico/gureum.git
+git clone https://github.com/yoropico/bomi-input.git
 cd gureum
 make init          # libhangul 등 submodule 가져오기
 git fetch --tags   # 버전 정보(태그) 가져오기
@@ -91,7 +91,7 @@ Xcode에서 `Gureum` 타겟을 빌드하면 의존성과 함께 구름 입력기
 - 개발 환경 설정과 디버깅: [개발하기(HACKING.md)](HACKING.md)
 - 기여 가이드와 이슈 작성: [기여하기(CONTRIBUTING.md)](CONTRIBUTING.md)
 
-버그를 발견하면 재현 방법과 사용 환경을 [이슈 페이지](https://github.com/yoropico/gureum/issues)에 남겨 주세요.
+버그를 발견하면 재현 방법과 사용 환경을 [이슈 페이지](https://github.com/yoropico/bomi-input/issues)에 남겨 주세요.
 
 ## upstream
 
