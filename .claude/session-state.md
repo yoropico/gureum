@@ -1,15 +1,15 @@
 ## Session state (devmode)
-- Updated: 2026-06-05. **Inline P2 pushed (`3b36d95`); P3 UI committed LOCAL (`5102d16`, NOT pushed yet)**.
-  Built signed Release + **installed** to /Library/Input Methods (pid live). devmode tracking follows.
-  Re-check `git log`/`git status` on resume. Only `main`.
+- Updated: 2026-06-05. **Inline P1+P2+P3-UI all committed + pushed** (latest feature `5102d16`; devmode
+  tracking follows). Built signed Release + **installed** to /Library/Input Methods (pid live).
+  `main` tracks `origin/main`; re-check `git log`/`git status` on resume. Only `main`.
 - Project: **bomi-input** (macOS IME, rebranded from Gureum). Durable build/sign/install commands,
   signing identity, git hazards, and the xib-module gotcha live in **CLAUDE.md — read it on resume.**
 
 ### DIAGNOSIS — where things stand
 - The bomi-input rebrand is **functional and shipped**. Korean input works. UI is fully de-Gureum'd.
 - **DKST inline direct-input** is at **P1 + P2 + P3-UI done, still DORMANT** behind the default-FALSE
-  kill-switch `inlineCompositionEnabled`. P1 (ecd254f) + P2 (3b36d95) pushed; **P3 UI (5102d16) committed
-  LOCAL only**. The settings pane now exposes the master toggle, so the **next on-device step is: open
+  kill-switch `inlineCompositionEnabled`. P1 (ecd254f) + P2 (3b36d95) + **P3 UI (5102d16) all pushed**.
+  The settings pane now exposes the master toggle, so the **next on-device step is: open
   환경설정 → "인라인 직접 입력 (실험적)" → enable → dogfood** (P3 hot-path hardening deferred by decision).
   No other DKST feature (Shift+jamo, user dictionary) is started.
 
@@ -41,7 +41,7 @@
    classify chain steps 3–5 wired), OSXCore/InputController.swift (LiveClientCapabilities.forcedMarkedBundleIDs +
    usesChromiumFrameworkTextStack — NSRunningApplication + Contents/Frameworks scan, cached by bundle ID),
    OSXCore/Configuration.swift (key inlineCompositionForcedMarkedBundleIDs, default []), GureumTests/
-   InlineCompositionTests.swift. **P3 UI (5102d16, LOCAL)**: Preferences/PreferenceViewController.swift adds
+   InlineCompositionTests.swift. **P3 UI (5102d16, pushed)**: Preferences/PreferenceViewController.swift adds
    "인라인 직접 입력 (실험적)" section built PROGRAMMATICALLY, appended to settings stack via ONE new xib
    outlet (inlineSettingsStackView→kLe-bm-FOO; no control XML in Preferences.xib). Controls: master enable,
    global always-marked, newline NSTextView blocklist editor. parse/format helpers live in Configuration.swift
@@ -62,7 +62,6 @@
   keyDown + immediate \r at commit (drop the 20ms timer). Needs a release build/install for daily use.
 
 ### NEXT (pick one)
-- **Push P3 UI commit `5102d16`** (local-only; needs fresh per-instance auth).
 - **Dogfood inline**: 환경설정 → "인라인 직접 입력 (실험적)" → enable → run the on-device app matrix
   (메모/Slack/Mail/Notion/Xcode/VS Code/Safari/Chrome/Terminal). Only port P3 hot-path hardening
   (first-roman-leak, eager-sync) if real problems appear.
