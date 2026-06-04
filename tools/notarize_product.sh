@@ -36,7 +36,7 @@ echo -n "Apple ID> "
 read -r apple_id
 
 echo "Notarizing app..."
-cmd=(xcrun altool --notarize-app -t osx --primary-bundle-id org.youknowone.inputmethod.Gureum \
+cmd=(xcrun altool --notarize-app -t osx --primary-bundle-id com.yoropico.inputmethod.bomi-input \
     -u "$apple_id" -p @keychain:developer.apple.com -itc_provider 9384JEL3M9 -f "${ZIP_PATH}")
 echo "${cmd[@]}"
 if ! "${cmd[@]}"; then
@@ -46,7 +46,7 @@ if ! "${cmd[@]}"; then
 fi
 
 echo "Notarizing pkg..."
-cmd=(xcrun altool --notarize-app -t osx --primary-bundle-id org.youknowone.inputmethod.Gureum \
+cmd=(xcrun altool --notarize-app -t osx --primary-bundle-id com.yoropico.inputmethod.bomi-input \
     -u "$apple_id" -p @keychain:developer.apple.com -f "$PKG_PATH")
 echo "${cmd[@]}"
 if ! "${cmd[@]}"; then
