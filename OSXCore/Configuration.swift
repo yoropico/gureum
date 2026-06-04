@@ -46,6 +46,11 @@ enum ConfigurationName {
     /// 우측 키로 언어 전환
     public static let rightToggleKey = "RightToggleKey"
 
+    /// 인라인 직접 입력 기능 (DKST 방식 이식, MIT) 마스터 스위치.
+    public static let inlineCompositionEnabled = "InlineCompositionEnabled"
+    /// 인라인 직접 입력 기능 (DKST 방식 이식, MIT) 시 모든 클라이언트에서 marked-text 강제.
+    public static let inlineCompositionAlwaysMarked = "InlineCompositionAlwaysMarked"
+
     /// 업데이트 알림 받기
     public static let updateNotification = "UpdateNotification"
     /// 실험버전 업데이트 알림 받기
@@ -104,6 +109,9 @@ public class Configuration: UserDefaults {
             ConfigurationName.hangulDeferredSymbolCommit: false,
             ConfigurationName.hangulForceStrictCombinationRule: false,
             ConfigurationName.rightToggleKey: kHIDUsage_KeyboardRightAlt,
+
+            ConfigurationName.inlineCompositionEnabled: false,
+            ConfigurationName.inlineCompositionAlwaysMarked: false,
 
             ConfigurationName.updateNotification: true,
             ConfigurationName.updateNotificationExperimental: false,
@@ -278,6 +286,28 @@ public class Configuration: UserDefaults {
         }
         set {
             set(newValue, forKey: ConfigurationName.rightToggleKey)
+        }
+    }
+
+    /// 인라인 직접 입력 기능 (DKST 방식 이식, MIT) 마스터 스위치.
+    /// 이 값이 true일 때만 인라인 조합이 동작한다.
+    public var inlineCompositionEnabled: Bool {
+        get {
+            bool(forKey: ConfigurationName.inlineCompositionEnabled)
+        }
+        set {
+            set(newValue, forKey: ConfigurationName.inlineCompositionEnabled)
+        }
+    }
+
+    /// 인라인 직접 입력 기능 (DKST 방식 이식, MIT) 전역 강제 옵션.
+    /// true이면 모든 클라이언트에서 marked-text 방식을 사용한다.
+    public var inlineCompositionAlwaysMarked: Bool {
+        get {
+            bool(forKey: ConfigurationName.inlineCompositionAlwaysMarked)
+        }
+        set {
+            set(newValue, forKey: ConfigurationName.inlineCompositionAlwaysMarked)
         }
     }
 

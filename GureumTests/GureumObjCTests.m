@@ -9,7 +9,7 @@
 @import XCTest;
 
 #import "OSXCore/NSPrefPaneBundle.h"
-#import "Gureum-Swift.h"
+#import "bomi_input-Swift.h"
 
 
 @interface GureumObjCTests : XCTestCase

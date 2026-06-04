@@ -53,6 +53,25 @@ public class InputController: IMKInputController {
     var lastFlags = NSEvent.ModifierFlags(rawValue: 0)
     var updating = false
 
+    // MARK: - inline-direct-input state (DKST-style port, MIT)
+
+    /// Document range currently holding the in-progress composedString in inline mode.
+    /// nil = nothing is inline-composing.
+    var directRange: NSRange?
+    /// The text currently occupying `directRange` in inline mode; used to validate the
+    /// range still holds the previous composedString before replacing it.
+    var directText: String = ""
+    /// Per-client composition policy. Default true = safe (marked) fallback until computed.
+    var useMarkedText = true
+
+    /// Port of DKST `directInputRangeIsCurrent:` — confirms `range` in `client` still holds `expected`.
+    func directRangeIsCurrent(_ expected: String, range: NSRange, client: (IMKTextInput & IMKUnicodeTextInput)) -> Bool {
+        if range.location == NSNotFound || range.length == 0 || expected.isEmpty || (expected as NSString).length != range.length {
+            return false
+        }
+        return client.attributedSubstring(from: range)?.string == expected
+    }
+
     override init!(server: IMKServer, delegate: Any!, client inputClient: Any) {
         super.init(server: server, delegate: delegate, client: inputClient)
         guard let inputClient = inputClient as? (IMKTextInput & IMKUnicodeTextInput) else {
@@ -101,6 +120,89 @@ public class InputController: IMKInputController {
             return v
         }
     #endif
+}
+
+// MARK: - Live ClientCapabilities adapter (inline-direct-input, DKST-style port, MIT)
+
+/// 라이브 IMK 컨트롤러/클라이언트로 뒷받침되는 구체적인 `ClientCapabilities`.
+///
+/// `InlineComposition.swift`는 순수하게 유지하기 위해 IMK를 import하지 않으므로,
+/// IMK에 의존하는 이 어댑터는 (이미 InputMethodKit을 import하는) 이 파일에 둔다.
+///
+/// - Note: `IMKTextInput & IMKUnicodeTextInput` 프로토콜 합성 타입은
+///   `NSObjectProtocol`(`responds(to:)`, `perform(...)`, `value(forKey:)`)를
+///   노출하지 않는다. 따라서 동적 호출은 모두 `(x as? NSObject)`로 캐스팅해
+///   수행한다. 반면 `selectedRange()`/`bundleIdentifier()`는 직접 프로토콜
+///   메서드이므로 그대로 호출한다.
+struct LiveClientCapabilities: ClientCapabilities {
+    weak var controller: IMKInputController?
+    let client: (IMKTextInput & IMKUnicodeTextInput)
+
+    var alwaysMarkedGlobal: Bool { Configuration.shared.inlineCompositionAlwaysMarked }
+
+    /// 호스트 앱의 번들 식별자. (P2의 blocklist/WebKit/Chromium 판정에서 소비)
+    var bundleIdentifier: String? { client.bundleIdentifier() }
+
+    /// DKST `InputController.m:848-874` 포팅.
+    ///
+    /// IMK textDocument 프록시를 먼저, 그다음 클라이언트를 대상으로 비공개
+    /// 셀렉터 `showsComposingTextAsMarkedText`를 동적으로 질의한다. 두 객체
+    /// 모두 응답하지 않으면 `nil`을 반환해 정책 체인이 다음 단계로 떨어지도록
+    /// 한다(임의의 기본값으로 합치지 않는다).
+    func showsComposingTextAsMarkedText() -> Bool? {
+        let selectorName = "showsComposingTextAsMarkedText"
+        let selector = NSSelectorFromString(selectorName)
+
+        // 1. textDocument 프록시에 먼저 질의한다.
+        if let textDocument = resolveTextDocument(),
+           textDocument.responds(to: selector),
+           let value = textDocument.value(forKey: selectorName) as? Bool
+        {
+            return value
+        }
+
+        // 2. 클라이언트에 직접 질의한다.
+        if let clientObject = client as? NSObject,
+           clientObject.responds(to: selector),
+           let value = clientObject.value(forKey: selectorName) as? Bool
+        {
+            return value
+        }
+
+        // 3. 둘 다 응답하지 않음 → 알 수 없음.
+        return nil
+    }
+
+    /// DKST `InputController.m:899-911` 포팅.
+    ///
+    /// `client.selectedRange()`는 직접 프로토콜 메서드이지만, 방어적으로
+    /// `(client as? NSObject)?.responds(to:)`로 응답 가능 여부를 먼저 확인한 뒤
+    /// 호출한다. 어떤 이유로든 실패하면 `false`를 반환한다.
+    func selectedRangeIsQueryable() -> Bool {
+        guard let clientObject = client as? NSObject,
+              clientObject.responds(to: NSSelectorFromString("selectedRange"))
+        else {
+            return false
+        }
+        return client.selectedRange().location != NSNotFound
+    }
+
+    /// 컨트롤러의 `textDocument` 프록시를 동적으로 얻는다.
+    ///
+    /// 컨트롤러를 `NSObject`로 캐스팅한 뒤 `textDocument` 셀렉터에 응답할 때에만
+    /// `perform(...)`으로 시도한다. 응답하지 않으면 `nil`을 반환한다. KVC
+    /// `value(forKey:)` 폴백은 비-KVC 객체에서 `NSUnknownKeyException`을 일으켜
+    /// (Swift에서 잡을 수 없어) 크래시를 내므로 사용하지 않는다.
+    private func resolveTextDocument() -> NSObject? {
+        guard let controllerObject = controller as? NSObject else {
+            return nil
+        }
+        let selector = NSSelectorFromString("textDocument")
+        guard controllerObject.responds(to: selector) else {
+            return nil
+        }
+        return controllerObject.perform(selector)?.takeUnretainedValue() as? NSObject
+    }
 }
 
 // IMKServerInputTextData, IMKServerInputHandleEvent, IMKServerInputKeyBinding 중 하나를 구현하여 입력 구현
@@ -214,6 +316,10 @@ public extension InputController { // IMKStateSetting
     override func activateServer(_ sender: Any!) {
         dlog(true, "server activated")
         super.activateServer(sender)
+        // 클라이언트 활성화 시 합성 표시 방식을 한 번 계산해 캐시한다.
+        // (DKST처럼 클라이언트 단위로 캐시 — 키 입력마다 비공개 API를 질의하지 않는다.)
+        let client = asClient(sender)
+        useMarkedText = classifyComposition(LiveClientCapabilities(controller: self, client: client)) == .marked
     }
 
     override func deactivateServer(_ sender: Any!) {
@@ -221,6 +327,8 @@ public extension InputController { // IMKStateSetting
         if responds(to: #selector(commitComposition(_:))) {
             self.commitComposition(sender)
         }
+        directRange = nil
+        directText = ""
         super.deactivateServer(sender)
     }
 }
@@ -263,6 +371,8 @@ public extension InputController { // IMKServerInput
     @objc override func cancelComposition() {
         dlog(DEBUG_LOGGING, "LOGGING::EVENT::CANCEL-RAW?")
         receiver.cancelCompositionEvent()
+        directRange = nil
+        directText = ""
         super.cancelComposition()
     }
 
@@ -351,6 +461,14 @@ public extension InputController { // IMKServerInput
 
         override func updateComposition() {
             receiver.updateCompositionEvent()
+
+            // 인라인(직접 입력) 모드에서는 프로덕션 입력 경로가 updateComposition을
+            // 호출하지 않고 renderInline이 직접 insertText로 문서를 갱신한다.
+            // 테스트 하니스(VirtualApp)가 매 키마다 updateComposition을 호출하더라도
+            // marked text를 쓰지 않도록 하여 프로덕션 동작을 충실히 반영한다.
+            if Configuration.shared.inlineCompositionEnabled, !useMarkedText {
+                return
+            }
 
             let client = receiver.inputClient
             let composed = composedString(client) as! String

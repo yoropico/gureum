@@ -23,6 +23,7 @@
 
 /* Begin PBXBuildFile section */
 		19136D73234090AA00A0BF3C /* SearchComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19136D72234090AA00A0BF3C /* SearchComposer.swift */; };
+		E278E5FE0A134486BE1BB333 /* InlineComposition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9918D8E3F9374E2EBA6F7D06 /* InlineComposition.swift */; };
 		19A1229A23477D2700525AEC /* TISInputSource+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A1229923477D2700525AEC /* TISInputSource+.swift */; };
 		19A122A323477DE900525AEC /* GureumShortcutValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A122A223477DE900525AEC /* GureumShortcutValidator.swift */; };
 		19A122A523477E1D00525AEC /* GureumPreferencePane.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A122A423477E1D00525AEC /* GureumPreferencePane.swift */; };
@@ -117,6 +118,7 @@
 		80A02B24217E1AA90018E658 /* hangul-keyboard-2y-full.xml in Copy Keyboards Files */ = {isa = PBXBuildFile; fileRef = 80A02B22217E1AA90018E658 /* hangul-keyboard-2y-full.xml */; };
 		80A02B25217E1AA90018E658 /* hangul-keyboard-2-full.xml in Copy Keyboards Files */ = {isa = PBXBuildFile; fileRef = 80A02B23217E1AA90018E658 /* hangul-keyboard-2-full.xml */; };
 		A34E20012168B21B00B12476 /* GureumTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BAAE062160C6970076C66D /* GureumTests.swift */; };
+		28EC00BE1701F81F6790F029 /* InlineCompositionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1CCC99FB06F6D24E5F983C4 /* InlineCompositionTests.swift */; };
 		A34E2025216ADBEC00B12476 /* emoji.txt in Copy Hanja Files */ = {isa = PBXBuildFile; fileRef = A34E2024216ADBEC00B12476 /* emoji.txt */; };
 		A36A435B216F86780052BE12 /* emoji_ko.txt in Copy Hanja Files */ = {isa = PBXBuildFile; fileRef = A36A4358216F86780052BE12 /* emoji_ko.txt */; };
 		CE21ADE3280A037400B54371 /* MASShortcut in Frameworks */ = {isa = PBXBuildFile; productRef = CE21ADD8280A026300B54371 /* MASShortcut */; };
@@ -284,6 +286,7 @@
 
 /* Begin PBXFileReference section */
 		19136D72234090AA00A0BF3C /* SearchComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchComposer.swift; sourceTree = "<group>"; };
+		9918D8E3F9374E2EBA6F7D06 /* InlineComposition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InlineComposition.swift; sourceTree = "<group>"; };
 		19A1229923477D2700525AEC /* TISInputSource+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TISInputSource+.swift"; sourceTree = "<group>"; };
 		19A122A223477DE900525AEC /* GureumShortcutValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GureumShortcutValidator.swift; sourceTree = "<group>"; };
 		19A122A423477E1D00525AEC /* GureumPreferencePane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GureumPreferencePane.swift; sourceTree = "<group>"; };
@@ -385,6 +388,7 @@
 		A34E2024216ADBEC00B12476 /* emoji.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = emoji.txt; sourceTree = "<group>"; };
 		A36A4358216F86780052BE12 /* emoji_ko.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = emoji_ko.txt; sourceTree = "<group>"; };
 		A3BAAE062160C6970076C66D /* GureumTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GureumTests.swift; sourceTree = "<group>"; };
+		F1CCC99FB06F6D24E5F983C4 /* InlineCompositionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InlineCompositionTests.swift; sourceTree = "<group>"; };
 		CE21AE05280B068B00B54371 /* TISInputSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TISInputSource.swift; sourceTree = "<group>"; };
 		E54B8381214299EB00527218 /* GureumComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GureumComposer.swift; sourceTree = "<group>"; };
 		E5A0EA092139098800D4AD69 /* GureumAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GureumAppDelegate.swift; sourceTree = "<group>"; };
@@ -597,6 +601,7 @@
 				38D3E42A21213E9700751191 /* HangulComposer.swift */,
 				38C75C8B1F153A74004BE02A /* RomanComposer.swift */,
 				19136D72234090AA00A0BF3C /* SearchComposer.swift */,
+				9918D8E3F9374E2EBA6F7D06 /* InlineComposition.swift */,
 				E54B8381214299EB00527218 /* GureumComposer.swift */,
 				19E257A12327412500952E64 /* KeyCode.swift */,
 				19A122B32349D18A00525AEC /* SearchPool.swift */,
@@ -660,6 +665,7 @@
 			isa = PBXGroup;
 			children = (
 				A3BAAE062160C6970076C66D /* GureumTests.swift */,
+				F1CCC99FB06F6D24E5F983C4 /* InlineCompositionTests.swift */,
 				388186B321EB4E4C004B7FDB /* MockApp.swift */,
 				3881866121EB239D004B7FDB /* MockInputClient.h */,
 				3881866221EB239E004B7FDB /* MockInputClient.m */,
@@ -1094,6 +1100,7 @@
 				3881869321EB2DC0004B7FDB /* Configuration.swift in Sources */,
 				388186B121EB453E004B7FDB /* InputController.swift in Sources */,
 				19136D73234090AA00A0BF3C /* SearchComposer.swift in Sources */,
+				E278E5FE0A134486BE1BB333 /* InlineComposition.swift in Sources */,
 				38B9551022A833E900A9D6E1 /* SystemConfigurationWatcher.swift in Sources */,
 				3881869121EB2DC0004B7FDB /* Debug.swift in Sources */,
 				388186A121EB3055004B7FDB /* GureumComposer.swift in Sources */,
@@ -1108,6 +1115,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A34E20012168B21B00B12476 /* GureumTests.swift in Sources */,
+				28EC00BE1701F81F6790F029 /* InlineCompositionTests.swift in Sources */,
 				388186B521EB4E98004B7FDB /* MockApp.swift in Sources */,
 				3881866421EB23F3004B7FDB /* MockInputClient.m in Sources */,
 				80983E8022AE2A7000A69C08 /* UpdateManager.swift in Sources */,
@@ -1535,7 +1543,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Gureum.app/Contents/MacOS/Gureum";
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/bomi-input.app/Contents/MacOS/bomi-input";
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1572,7 +1580,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Gureum.app/Contents/MacOS/Gureum";
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/bomi-input.app/Contents/MacOS/bomi-input";
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",

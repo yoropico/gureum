@@ -83,21 +83,88 @@ public class InputReceiver: InputTextDelegate {
             cancelComposition()
         }
 
-        let commited = commitCompositionEvent(sender) // 조합 된 문자 반영
-        if result.action == .commit {
-            return result
-        }
-        let hasComposedString = !_internalComposedString.isEmpty
-        let selectionRange = controller.selectionRange()
-        hasSelectionRange = selectionRange.location != NSNotFound && selectionRange.length > 0
-        if commited || controller.selectionRange().length > 0 || hadComposedString || hasComposedString {
-            updateComposition() // 조합 중인 문자 반영
+        if Configuration.shared.inlineCompositionEnabled, !controller.useMarkedText {
+            // 인라인(직접 입력) 분기: 커밋 + 조합 문자를 한 번의 insertText로 문서에 반영한다.
+            renderInline(sender)
+            if result.action == .commit {
+                return result
+            }
+        } else {
+            let commited = commitCompositionEvent(sender) // 조합 된 문자 반영
+            if result.action == .commit {
+                return result
+            }
+            let hasComposedString = !_internalComposedString.isEmpty
+            let selectionRange = controller.selectionRange()
+            hasSelectionRange = selectionRange.location != NSNotFound && selectionRange.length > 0
+            if commited || controller.selectionRange().length > 0 || hadComposedString || hasComposedString {
+                updateComposition() // 조합 중인 문자 반영
+            }
         }
 
         inputting = false
 
         dlog(DEBUG_INPUT_RECEIVER, "*** End of Input handling ***")
         return result
+    }
+
+    /// 직전 인라인 조합 문자열(`expected`)이 자리하던 문서 범위를 도출한다.
+    /// `directRange`(`dr`)가 여전히 유효하면 그대로 사용하고, 커서만 이동한
+    /// 경우 커서 바로 앞을 backtrack해 보정하며, 어느 쪽도 아니면 NSNotFound.
+    /// (DKST `directInputReplacementRange` 포팅, MIT)
+    private func inlineReplaceRange(_ expected: String, dr: NSRange, client sender: IMKTextInput & IMKUnicodeTextInput) -> NSRange {
+        if controller.directRangeIsCurrent(expected, range: dr, client: sender) {
+            return dr
+        }
+        let sel = sender.selectedRange()
+        if sel.location != NSNotFound, sel.length == 0, sel.location >= dr.length {
+            let back = NSRange(location: sel.location - dr.length, length: dr.length)
+            if controller.directRangeIsCurrent(expected, range: back, client: sender) {
+                return back
+            }
+        }
+        return NSRange(location: NSNotFound, length: 0)
+    }
+
+    /// 인라인(직접 입력) 렌더링: 커밋 문자열과 조합 중인 문자열을 합쳐
+    /// 단 한 번의 insertText로 문서에 반영하고, 조합 중인 문자가 차지하는
+    /// 범위(directRange)를 갱신한다. (DKST 스타일 포팅, MIT)
+    private func renderInline(_ sender: IMKTextInput & IMKUnicodeTextInput) {
+        let commitString = composer.dequeueCommitString()
+        let composedString = _internalComposedString
+        let combined = commitString + composedString
+
+        // 직전 조합 문자열이 자리하던 범위를 찾아 대체 대상으로 삼는다.
+        let replaceRange = (controller.directRange != nil)
+            ? inlineReplaceRange(controller.directText, dr: controller.directRange!, client: sender)
+            : NSRange(location: NSNotFound, length: 0)
+
+        if !combined.isEmpty || replaceRange.location != NSNotFound {
+            sender.insertText(combined, replacementRange: replaceRange)
+        }
+
+        if composedString.isEmpty {
+            controller.directRange = nil
+            controller.directText = ""
+        } else {
+            let baseLoc: Int
+            if replaceRange.location != NSNotFound {
+                baseLoc = replaceRange.location
+            } else {
+                let sel = sender.selectedRange()
+                // 셀렉션 위치를 알 수 없으면 직접 범위를 산정할 수 없으므로,
+                // 손상된 directRange를 저장하지 않고 추적 상태를 비운다.
+                if sel.location == NSNotFound {
+                    controller.directRange = nil
+                    controller.directText = ""
+                    return
+                }
+                baseLoc = sel.location - (combined as NSString).length
+            }
+            controller.directRange = NSRange(location: baseLoc + (commitString as NSString).length,
+                                             length: (composedString as NSString).length)
+            controller.directText = composedString
+        }
     }
 
     func input(event: InputEvent, client sender: IMKTextInput & IMKUnicodeTextInput) -> InputResult {
@@ -161,6 +228,21 @@ extension InputReceiver { // IMKServerInput
         // 왠지는 모르겠지만 프로그램마다 동작이 달라서 조합을 반드시 마쳐주어야 한다
         // 터미널과 같이 조합중에 리턴키 먹는 프로그램은 조합 중인 문자가 없고 보통은 있다
         let commitString = composer.dequeueCommitString()
+
+        // 인라인(직접 입력) 분기: 조합 중인 글자는 이미 directRange 위치에 실제
+        // 텍스트로 문서에 존재한다. 셀렉션에 다시 insert하면 그 글자가 중복되므로
+        // (예: 인라인으로 "안" 조합 → 모드 전환 → "안안"), 셀렉션 insert 대신
+        // 해당 범위를 최종 commitString으로 제자리 치환하고 추적 상태를 비운다.
+        if Configuration.shared.inlineCompositionEnabled, !controller.useMarkedText, let dr = controller.directRange {
+            if !commitString.isEmpty {
+                let replaceRange = inlineReplaceRange(controller.directText, dr: dr, client: sender)
+                sender.insertText(commitString, replacementRange: replaceRange)
+            }
+            controller.directRange = nil
+            controller.directText = ""
+            InputMethodServer.shared.showOrHideCandidates(controller: controller)
+            return !commitString.isEmpty
+        }
 
         // 커밋할 문자가 없으면 중단
         if commitString.isEmpty {
@@ -256,6 +338,13 @@ extension InputReceiver { // IMKStateSetting
             if value != composer.inputMode {
                 commitComposition(sender)
                 composer.inputMode = value
+                // 이전 인라인 조합은 위의 commitComposition(sender)로 이미 커밋되었으므로
+                // 추적 상태를 비워 새 모드가 깨끗하게 시작하도록 한다.
+                controller.directRange = nil
+                controller.directText = ""
+                // 입력 모드가 실제로 바뀐 뒤 합성 표시 방식을 다시 계산해 캐시한다.
+                // (클라이언트 단위 캐시 — 키 입력마다 비공개 API를 질의하지 않는다.)
+                controller.useMarkedText = classifyComposition(LiveClientCapabilities(controller: controller, client: sender)) == .marked
             }
         default:
             dlog(true, "**** UNKNOWN TAG %ld !!! ****", tag)
