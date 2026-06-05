@@ -80,7 +80,16 @@ public class InputReceiver: InputTextDelegate {
         inputting = true
 
         if result.action != .none {
-            cancelComposition()
+            if Configuration.shared.inlineCompositionEnabled, !controller.useMarkedText {
+                // 인라인: composer만 flush하고 directRange는 보존한다. 여기서
+                // controller.cancelComposition()을 부르면 directRange가 먼저 비워져,
+                // 아래 renderInline이 이미 문서에 삽입된 조합 글자를 제자리 치환하지
+                // 못하고 append → 커밋(스페이스/엔터) 시 마지막 음절이 중복된다
+                // (예: "안녕" → "안녕녕"). renderInline이 치환 후 directRange를 정리한다.
+                cancelCompositionEvent()
+            } else {
+                cancelComposition()
+            }
         }
 
         if Configuration.shared.inlineCompositionEnabled, !controller.useMarkedText {

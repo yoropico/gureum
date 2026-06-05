@@ -277,6 +277,34 @@ class InlineRenderTests: XCTestCase {
         }
     }
 
+    /// 재현(Finder/일반 앱): 인라인으로 단어를 친 뒤 스페이스 커밋 시 마지막 음절이
+    /// 중복되면 안 된다. space → action==.commit → cancelComposition()이 directRange를
+    /// 먼저 비워, renderInline이 이미 삽입된 "녕"을 제자리 치환 못 하고 append → "안녕녕".
+    func testInlineSpaceCommitDoesNotDuplicateLastSyllable() {
+        Configuration.shared.inlineCompositionEnabled = true
+        app.controller.useMarkedText = false
+
+        app.inputKeys("dkssud") // 안녕 (녕 인라인 조합 중)
+        app.inputKey(.space)    // 커밋
+
+        print("SpaceCommit doc: \(app.client.string)")
+        XCTAssertFalse(app.client.string.contains("녕녕"), "space commit duplicated last syllable: \(app.client.string)")
+        XCTAssertTrue(app.client.string.hasPrefix("안녕"), "doc should start with 안녕: \(app.client.string)")
+    }
+
+    /// 재현: 엔터 커밋 시에도 마지막 음절 중복 금지(.return 도 action==.commit).
+    func testInlineEnterCommitDoesNotDuplicateLastSyllable() {
+        Configuration.shared.inlineCompositionEnabled = true
+        app.controller.useMarkedText = false
+
+        app.inputKeys("dkssud") // 안녕
+        app.inputKey(.return)   // 엔터 커밋
+
+        print("EnterCommit doc: \(app.client.string)")
+        XCTAssertFalse(app.client.string.contains("녕녕"), "enter commit duplicated last syllable: \(app.client.string)")
+        XCTAssertTrue(app.client.string.hasPrefix("안녕"), "doc should start with 안녕: \(app.client.string)")
+    }
+
     /// 인라인 조합 중 입력 모드 전환 시 진행 중인 음절이 중복되지 않아야 한다.
     /// (인라인으로 "안" 조합 → 모드 전환 → "안안" 회귀 방지)
     func testInlineModeChangeMidCompositionDoesNotDuplicate() {

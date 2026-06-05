@@ -565,6 +565,10 @@ public extension InputController { // IMKServerInput
 
         override func cancelComposition() {
             receiver.cancelCompositionEvent()
+            // 실제 InputController.cancelComposition 과 동일하게 인라인 추적 상태를
+            // 비운다. (이게 빠져 있어 인라인 commit 중복 버그가 테스트에서 가려졌었다.)
+            directRange = nil
+            directText = ""
 
             let client = receiver.inputClient
             let view = receiver.inputClient as! NSTextView
