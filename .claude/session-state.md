@@ -1,15 +1,18 @@
 ## Session state (devmode)
-- Updated: 2026-06-05. **INLINE DISABLED by user** (`InlineCompositionEnabled=false` in sandbox container)
-  after a dogfood failure cascade → back to the years-stable MARKED path everywhere. Clean Release rebuilt
-  (debug NSLog removed) + reinstalled (pid live), inline OFF confirmed. git: origin `55d3b5b`; **local ahead 1
-  (`2e9cea1`, dormant)**. Built/sign/install + git rules + sandbox defaults gotcha in CLAUDE.md.
-- **Inline status: shelved.** P1+P2+P3-UI + terminals→marked (`33a2be2`) all pushed. Dogfooding found inline
-  fails broadly — ONE root cause: tracked `directRange` drifts out of sync with the real document. Symptoms:
-  commit dup "안녕"→"안녕녕" (Finder + all apps, space/enter); Word cursor-jump on move-then-delete (stale
-  directRange); terminals (PTY); Word custom engine. `2e9cea1` fixed ONE commit append-path + a mock infidelity
-  (MockInputController.cancelComposition was missing `directRange=nil`) but Finder still dup'd via the
-  delete/validate gap. **Fundamental fix written in the spec** (validate-or-bail everywhere / cursor-move
-  invalidation / capability-probe→marked). Re-enabling inline REQUIRES that hardening (or drop inline).
+- Updated: 2026-06-05. **Inline hardening PHASE 1 done, PAUSED here (user: "1차 여기까지, 2차=침습적 방법").**
+  Inline currently **OFF** (`InlineCompositionEnabled=0` in sandbox container) = stable marked everywhere.
+  git: origin `55d3b5b`; **local ahead 3, UNPUSHED**: `2e9cea1` (directRange-preserve + mock fidelity),
+  `aee41d6` (docs), `3e3bee6` (① fail-safe). Build/sign/install + git rules + sandbox-defaults gotcha in CLAUDE.md.
+- **Inline status: PHASE 1 fixes in, dogfood-paused.** ① fail-safe (`3e3bee6`, VERIFIED Finder: commit dup
+  gone) + terminals→marked (`33a2be2`) + Chromium/WebKit (P2). Root cause of all inline bugs = tracked
+  `directRange` drifts vs real document. **STILL OPEN (phase 2)**: MS Word still dups (its engine passes
+  attributedSubstring but IGNORES insertText replacementRange → appends; ① only catches validation-FAILURE
+  so it misses Word); ② cursor-move invalidation (Word move-then-delete jump) not done; ③ capability gate not done.
+- **PHASE 2 = invasive probe** (spec "PHASE 2" section): at composition start, insertText a probe char +
+  read-back + delete to detect capability BEFORE any visible composition (glitch-free ③), then ② cursor-move,
+  then re-enable. Post-insert auto-detect works but leaves a 1-time artifact; invasive probe avoids it.
+- **OPEN (BCT-side, NOT bomi)**: BCT garbled PREEDIT in marked mode ("?<0095><009c>") — BCT preedit handling;
+  bomi marked path is standard. `[ime-diag]` logs in BCT `src/app/event_loop/ime.rs` → ~/.config/bomi-claude-terminal/bct.log.
 - **OPEN (BCT-side, NOT bomi)**: BCT garbled PREEDIT in marked mode ("?<0095><009c>") — BCT preedit handling;
   bomi marked path is standard. `[ime-diag]` logs in BCT `src/app/event_loop/ime.rs` → ~/.config/bomi-claude-terminal/bct.log.
 - Project: **bomi-input** (macOS IME, rebranded from Gureum). Durable build/sign/install commands,
@@ -77,11 +80,12 @@
   the fundamental hardening (spec STATUS 2026-06-05 section): ①validate-or-bail ②cursor-move invalidation
   ③capability-probe→marked. `2e9cea1` (local) = partial commit-dup fix, dormant.
 
-### NEXT (pick one)
-- **Inline fundamental hardening** (only if pursuing inline) — implement spec STATUS ①②③, then re-enable.
-  Else: drop inline (marked is the stable default) — could revert/retire the inline code later.
-- Push `2e9cea1` (local ahead 1; or hold until inline hardening lands).
-- **Shift+jamo → custom output** (⬜ not started) — independent, no hot-path risk; good next feature.
+### NEXT
+- **Inline PHASE 2 (paused, resume when ready)**: invasive pre-composition probe → glitch-free ③
+  capability gate (auto-marks Word/non-standard apps); then ② cursor-move invalidation; then re-enable
+  inline + on-device matrix. Spec "PHASE 2" section has the design. (Inline OFF until then = stable.)
+- Push local ahead 3 (`2e9cea1`+`aee41d6`+`3e3bee6`) — phase-1 checkpoint; needs fresh per-instance auth.
+- **Shift+jamo → custom output** (⬜ not started) — independent, no hot-path risk; good parallel feature.
 - **User custom dictionary** (⬜ not started).
 - BCT preedit garbled-marked bug — separate repo (claude-terminal), out of scope for bomi.
 

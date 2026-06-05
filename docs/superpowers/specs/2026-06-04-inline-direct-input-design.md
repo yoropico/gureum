@@ -207,6 +207,31 @@ lowest-risk path; ② on top. Residual app-compat risk always remains (why DKST 
 list) — so also weigh whether inline's underline-free aesthetic is worth the perpetual compat tax vs
 just shipping the rock-solid marked default.
 
+### PHASE 1 (done — shipped behind kill-switch, inline currently OFF)
+- ① fail-safe **DONE** (`3e3bee6`, verified on-device in Finder): in renderInline, when a tracked
+  directRange can't be located at commit (validation+backtrack fail) AND composedString is empty, skip
+  the append (combined is already-inline text) → commit duplication structurally impossible on that path.
+  Earlier `2e9cea1` preserved directRange into renderInline (cancelCompositionEvent vs cancelComposition)
+  and fixed a MockInputController.cancelComposition infidelity that hid the bug.
+- terminals→marked (`33a2be2`) + Chromium/WebKit (P2) already in.
+- KNOWN-OPEN, deferred to phase 2: **MS Word** still dups — its engine PASSES attributedSubstring
+  validation but IGNORES insertText's replacementRange (appends), so ① (which only triggers on validation
+  FAILURE) can't catch it; ② (cursor-move invalidation) not implemented; ③ not implemented.
+
+### PHASE 2 (next — capability detection done right, glitch-free via an INVASIVE probe)
+The post-insert auto-detect (verify caret landed at replaceRange.location+len; else → marked) catches
+"ignores replacementRange" apps like Word automatically WITHOUT a list, but only AFTER one bad insert →
+a one-time visual artifact (orphan glyph) on the first composition in such an app.
+**Phase-2 goal: make ③ glitch-free with an INVASIVE pre-composition probe** — at composition START,
+before showing anything: insertText a probe char with a replacementRange, read it back
+(attributedSubstring) to confirm it landed where requested, then delete it (undo). Decide inline-vs-marked
+from the round-trip BEFORE any user-visible composition. "Invasive" = it momentarily writes+deletes a
+probe char in the document (risks: visible flicker, polluting undo history, side effects in reactive
+fields). Phase 2 = find a safe/cheap form of this probe (e.g., probe once per client and cache; or probe
+in a way that's invisible/undoable), then layer ② (cursor-move invalidation) on top, then re-enable inline.
+Fallback if no clean invasive probe: post-insert auto-detect + a small curated marked list (Office, etc.)
+for the common apps to avoid the first-composition artifact.
+
 ## Attribution
 
 Port adapts logic from DKST (DINKIssTyle-IME-macOS), MIT © 2025 DINKIssTyle.
