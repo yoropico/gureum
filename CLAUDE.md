@@ -9,6 +9,11 @@ Engine lives in `OSXCore` → `GureumCore.framework`. Per-client input flows:
 - Bundle ID: `com.yoropico.inputmethod.bomi-input`
 - Input-source IDs: `com.yoropico.inputmethod.bomi-input.<mode>` (han2/han3/han3final/qwerty/…)
 - Settings suite (`Configuration.sharedSuiteName`): `com.yoropico.bomi-input`
+  - **SANDBOXED**: the app has a container, so this suite is redirected to
+    `~/Library/Containers/com.yoropico.inputmethod.bomi-input/Data/Library/Preferences/com.yoropico.bomi-input.plist`.
+    Plain `defaults read com.yoropico.bomi-input` reads the WRONG (non-sandbox) `~/Library/Preferences/…`
+    and shows stale/missing keys. To inspect real settings use `defaults find <key>` or
+    `plutil -p "<container plist>"`. (Bit me once: read "inline off" when it was on.)
 - IMK connection name (internal, invisible): `GureumInputMethod_1_Connection`
   (`Info.plist:InputMethodConnectionName` must equal the name passed to `IMKServer`)
 - App-target Swift module name: **`bomi_input`** (derived from `PRODUCT_NAME=bomi-input`, hyphen→underscore).
