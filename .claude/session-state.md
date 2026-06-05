@@ -1,7 +1,14 @@
 ## Session state (devmode)
-- Updated: 2026-06-05. Inline P1+P2+P3-UI pushed (`5102d16`). **Dogfood fix: terminals→marked (`33a2be2`)
-  committed LOCAL — local ahead 2, UNPUSHED** (33a2be2 + devmode 72b8366). Built signed Release + installed.
-  `main` tracks `origin/main`; re-check `git log`/`git status` on resume. Only `main`.
+- Updated: 2026-06-05. Inline P1+P2+P3-UI + **terminals→marked fix (`33a2be2`, VERIFIED on-device —
+  dup gone with inline ON)** all committed + pushed (+ CLAUDE.md sandbox defaults-redirect gotcha `5004901`).
+  Built signed Release + installed (pid live). `main` tracks `origin/main`; re-check `git log` on resume. Only `main`.
+- **Inline IS ENABLED on-device** (InlineCompositionEnabled=true in the SANDBOX container plist; blocklist
+  empty → BCT handled by built-in terminal classifier). So terminals→marked fix is genuinely active.
+- **OPEN (BCT-side, not bomi)**: BCT shows intermittent garbled PREEDIT in marked mode ("?<0095><009c>") —
+  diagnosed BCT preedit/commit RACE (auto-commit vs IMM-commit + 100ms dedup, ime.rs:94-106) splitting
+  multibyte Hangul. BCT instrumented with `[ime-diag]` logs (codepoints+bytes) in handle_ime_preedit/commit
+  (added by BCT-side); instrumented debug build target/debug/BCT RUNNING (pid was 27555), logs →
+  ~/.config/bomi-claude-terminal/bct.log. Pending: capture a garbled instance → confirm upstream vs downstream.
 - Project: **bomi-input** (macOS IME, rebranded from Gureum). Durable build/sign/install commands,
   signing identity, git hazards, and the xib-module gotcha live in **CLAUDE.md — read it on resume.**
 
