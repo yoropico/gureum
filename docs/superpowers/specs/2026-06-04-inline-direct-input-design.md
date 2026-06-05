@@ -220,7 +220,13 @@ just shipping the rock-solid marked default.
   validation but IGNORES insertText's replacementRange (appends), so ① (which only triggers on validation
   FAILURE) can't catch it; ② (cursor-move invalidation) not implemented; ③ not implemented.
 
-### PHASE 2 (next — capability gate done right, NON-INVASIVE; design 2026-06-05)
+### PHASE 2 (③ non-invasive gate + ② cursor-move — IMPLEMENTED 2026-06-05, behind kill-switch)
+
+Implemented (A seed list `bundleIdentifierUsesAppendOnlyTextStack`, B runtime caret-landing learning in
+renderInline → demote+learn+best-effort-repair, ② expectedCaret invalidation). OSXTests green
+(1 known IMK-env baseline). Inline still default-FALSE; PENDING: flip the UI switch ON + run the on-device
+matrix (Word/Excel/Hancom → marked; Notes/Safari/Slack → inline; an unknown append app → B-layer learns),
+then decide whether to flip the default.
 
 **Decision (2026-06-05): the invasive pre-composition probe is REJECTED.** Inserting + reading back +
 deleting a probe char before showing any composition writes a synthetic char into the user's document at

@@ -19,13 +19,15 @@ private struct StubCaps: ClientCapabilities {
     let bundleID: String?
     let forcedMarked: [String]
     let chromiumFramework: Bool
+    let learnedAppend: Bool
 
     init(alwaysMarked: Bool,
          showsMarked: Bool?,
          selectableRange: Bool,
          bundleID: String? = nil,
          forcedMarked: [String] = [],
-         chromiumFramework: Bool = false)
+         chromiumFramework: Bool = false,
+         learnedAppend: Bool = false)
     {
         self.alwaysMarked = alwaysMarked
         self.showsMarked = showsMarked
@@ -33,6 +35,7 @@ private struct StubCaps: ClientCapabilities {
         self.bundleID = bundleID
         self.forcedMarked = forcedMarked
         self.chromiumFramework = chromiumFramework
+        self.learnedAppend = learnedAppend
     }
 
     var alwaysMarkedGlobal: Bool { alwaysMarked }
@@ -41,6 +44,7 @@ private struct StubCaps: ClientCapabilities {
     var bundleIdentifier: String? { bundleID }
     var forcedMarkedBundleIDs: [String] { forcedMarked }
     func usesChromiumFrameworkTextStack() -> Bool { chromiumFramework }
+    func learnedAppendOnly() -> Bool { learnedAppend }
 }
 
 class InlineCompositionTests: XCTestCase {
@@ -114,6 +118,32 @@ class InlineCompositionTests: XCTestCase {
         XCTAssertTrue(bundleIdentifierUsesTerminalTextStack("com.github.wez.wezterm"))
         XCTAssertFalse(bundleIdentifierUsesTerminalTextStack("com.apple.Safari"))
         XCTAssertFalse(bundleIdentifierUsesTerminalTextStack(""))
+    }
+
+    func testAppendOnlyTextStackMatchesOfficeAndHancom() {
+        XCTAssertTrue(bundleIdentifierUsesAppendOnlyTextStack("com.microsoft.Word"))
+        XCTAssertTrue(bundleIdentifierUsesAppendOnlyTextStack("com.microsoft.Excel"))
+        XCTAssertTrue(bundleIdentifierUsesAppendOnlyTextStack("com.microsoft.Powerpoint"))
+        XCTAssertTrue(bundleIdentifierUsesAppendOnlyTextStack("com.microsoft.Outlook"))
+        XCTAssertTrue(bundleIdentifierUsesAppendOnlyTextStack("com.haansoft.hwp"))
+        // 점 경계 prefix: 같은 vendor라도 다른 앱은 잡지 않는다.
+        XCTAssertFalse(bundleIdentifierUsesAppendOnlyTextStack("com.microsoft.VSCode"))
+        XCTAssertFalse(bundleIdentifierUsesAppendOnlyTextStack("com.apple.Safari"))
+        XCTAssertFalse(bundleIdentifierUsesAppendOnlyTextStack(""))
+    }
+
+    func testAppendOnlySeedBundleReturnsMarked() {
+        // showsMarked nil + selectable true이면 기본 inline이지만, 시드 목록이면 marked.
+        let caps = StubCaps(alwaysMarked: false, showsMarked: nil, selectableRange: true,
+                            bundleID: "com.microsoft.Word")
+        XCTAssertEqual(classifyComposition(caps), .marked)
+    }
+
+    func testLearnedAppendOnlyReturnsMarked() {
+        // 런타임 학습으로 append-only로 판명된 클라이언트는 시드 목록에 없어도 marked.
+        let caps = StubCaps(alwaysMarked: false, showsMarked: nil, selectableRange: true,
+                            bundleID: "com.unknown.editor", learnedAppend: true)
+        XCTAssertEqual(classifyComposition(caps), .marked)
     }
 
     // MARK: - P3: blocklist editor text <-> [String] normalization
@@ -217,6 +247,7 @@ class InlineRenderTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
+        InputController.resetLearnedAppendOnlyCache()
         // 공유 Configuration은 실제 UserDefaults suite를 변경하므로 이전 값을 저장한다.
         savedInlineEnabled = Configuration.shared.inlineCompositionEnabled
 
@@ -231,6 +262,7 @@ class InlineRenderTests: XCTestCase {
         // suite를 더럽힌 채로 두지 않는다.
         Configuration.shared.inlineCompositionEnabled = savedInlineEnabled
         Configuration.shared.inlineCompositionEnabled = false
+        InputController.resetLearnedAppendOnlyCache()
         super.tearDown()
     }
 
@@ -387,5 +419,70 @@ class InlineRenderTests: XCTestCase {
         // 커밋 후 최종 문서 텍스트는 "안녕"으로 끝난다.
         app.inputKey(.space)
         XCTAssertTrue(app.client.string.hasSuffix("안녕"), "committed text should end with 안녕, got: \(app.client.string)")
+    }
+
+    func testLearnedAppendOnlyCacheRecordsAndResets() {
+        InputController.resetLearnedAppendOnlyCache()
+        XCTAssertFalse(InputController.isLearnedAppendOnly(bundleID: "com.test.x"))
+        InputController.recordLearnedAppendOnly(bundleID: "com.test.x")
+        XCTAssertTrue(InputController.isLearnedAppendOnly(bundleID: "com.test.x"))
+        // 빈 번들 식별자는 기록하지 않는다.
+        InputController.recordLearnedAppendOnly(bundleID: "")
+        XCTAssertFalse(InputController.isLearnedAppendOnly(bundleID: ""))
+        InputController.resetLearnedAppendOnlyCache()
+        XCTAssertFalse(InputController.isLearnedAppendOnly(bundleID: "com.test.x"))
+    }
+
+    func testAppendOnlyClientIgnoresReplacementRange() {
+        let client = MockInputClient()
+        client.string = "ㅇ"
+        client.setSelectedRange(NSRange(location: 1, length: 0))
+        client.appendOnlyIgnoresReplacementRange = true
+        // 제자리 치환을 요청해도 무시하고 끝에 append해야 한다(Word 모사).
+        client.insertText("아", replacementRange: NSRange(location: 0, length: 1))
+        XCTAssertEqual("ㅇ아", client.string, "append-only client must append, not replace: \(client.string)")
+        XCTAssertEqual(2, client.selectedRange().location, "caret must land after the appended text")
+    }
+
+    func testInlineDemotesToMarkedWhenClientAppendsIgnoringRange() {
+        Configuration.shared.inlineCompositionEnabled = true
+        app.controller.useMarkedText = false
+        app.client.appendOnlyIgnoresReplacementRange = true
+        app.client.resetRecordedMarkedTexts()
+
+        // "dk" = ㅇ 그리고 ㅏ. 둘째 키가 첫 글자를 제자리 치환하려 하지만 append-only
+        // 클라이언트가 무시하고 append → caret 착지 검증이 위반을 감지한다.
+        app.inputKeys("dk")
+
+        XCTAssertTrue(app.controller.useMarkedText,
+                      "append-only client must be demoted to marked after the violating replace")
+        let bundleID = app.client.bundleIdentifier() ?? ""
+        XCTAssertTrue(InputController.isLearnedAppendOnly(bundleID: bundleID),
+                      "violating client's bundle id must be learned")
+        XCTAssertFalse(app.client.recordedMarkedTexts().isEmpty,
+                       "demote must re-render the in-progress composition as marked text")
+    }
+
+    func testCursorMoveMidCompositionReanchorsInsteadOfReplacingStaleRange() {
+        Configuration.shared.inlineCompositionEnabled = true
+        app.controller.useMarkedText = false
+
+        // 기존 텍스트 끝에서 조합을 시작한다.
+        app.client.string = "XY"
+        app.client.setSelectedRange(NSRange(location: 2, length: 0))
+        app.inputKeys("d") // ㅇ → "XYㅇ", directRange=(2,1), expectedCaret=3
+
+        // 사용자가 커서를 문서 맨 앞으로 옮긴다(클릭/화살표 모사).
+        app.client.setSelectedRange(NSRange(location: 0, length: 0))
+        app.client.resetRecordedInsertions()
+
+        app.inputKeys("k") // ㅏ → "아"; action==.none. ②가 stale directRange(2,1)를 무효화.
+
+        let insertions = app.client.recordedInsertions()
+        XCTAssertFalse(insertions.isEmpty, "a keystroke after cursor move must produce an insertion")
+        // 핵심: 옛 directRange(2,1) 제자리 치환이 아니라 NSNotFound(새 삽입)이어야 한다.
+        let firstRange = insertions.first?["range"]
+        XCTAssertEqual(NSStringFromRange(NSRange(location: NSNotFound, length: 0)), firstRange,
+                       "after cursor move the keystroke must insert fresh (NSNotFound), not replace the stale range: \(insertions)")
     }
 }

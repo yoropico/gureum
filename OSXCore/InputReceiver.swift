@@ -93,6 +93,12 @@ public class InputReceiver: InputTextDelegate {
         }
 
         if Configuration.shared.inlineCompositionEnabled, !controller.useMarkedText {
+            // ② 커서이동 무효화: 순수 조합 연속(action == .none)일 때만 검사한다. 커밋/취소
+            // 경로는 ① fail-safe가 처리하므로 건드리지 않는다(그렇지 않으면 lost-range 커밋이
+            // stale 추적을 비워 append 중복을 낸다).
+            if result.action == .none {
+                invalidateDirectRangeIfCursorMoved(sender)
+            }
             // 인라인(직접 입력) 분기: 커밋 + 조합 문자를 한 번의 insertText로 문서에 반영한다.
             renderInline(sender)
             if result.action == .commit {
@@ -117,6 +123,25 @@ public class InputReceiver: InputTextDelegate {
         return result
     }
 
+    /// ② 커서이동 무효화: 직전 인라인 렌더 이후의 기대 caret(expectedCaret)과 현재
+    /// selectedRange가 다르면 사용자가 커서를 옮긴 것 → directRange를 비워 재앵커한다.
+    /// 그대로 두면 directRangeIsCurrent가 옛 위치의 텍스트를 그대로 확인해 그 위치를
+    /// 제자리 치환하고, 사용자가 옮긴 위치를 무시한다(Word move-then-delete 점프).
+    private func invalidateDirectRangeIfCursorMoved(_ sender: IMKTextInput & IMKUnicodeTextInput) {
+        guard controller.directRange != nil, let expected = controller.expectedCaret else {
+            return
+        }
+        let sel = sender.selectedRange()
+        if sel.location == NSNotFound {
+            return
+        }
+        if sel.location != expected {
+            controller.directRange = nil
+            controller.directText = ""
+            controller.expectedCaret = nil
+        }
+    }
+
     /// 직전 인라인 조합 문자열(`expected`)이 자리하던 문서 범위를 도출한다.
     /// `directRange`(`dr`)가 여전히 유효하면 그대로 사용하고, 커서만 이동한
     /// 경우 커서 바로 앞을 backtrack해 보정하며, 어느 쪽도 아니면 NSNotFound.
@@ -135,9 +160,10 @@ public class InputReceiver: InputTextDelegate {
         return NSRange(location: NSNotFound, length: 0)
     }
 
-    /// 인라인(직접 입력) 렌더링: 커밋 문자열과 조합 중인 문자열을 합쳐
-    /// 단 한 번의 insertText로 문서에 반영하고, 조합 중인 문자가 차지하는
-    /// 범위(directRange)를 갱신한다. (DKST 스타일 포팅, MIT)
+    /// 인라인(직접 입력) 렌더링: 커밋 문자열과 조합 중인 문자열을 합쳐 단 한 번의
+    /// insertText로 문서에 반영하고, 조합 중인 문자가 차지하는 범위(directRange)를
+    /// 갱신한다. PHASE 2: 실제 치환 직후 caret 착지를 검증해 append-only 클라이언트를
+    /// marked로 강등·학습한다. (DKST 스타일 포팅, MIT)
     private func renderInline(_ sender: IMKTextInput & IMKUnicodeTextInput) {
         let commitString = composer.dequeueCommitString()
         let composedString = _internalComposedString
@@ -148,25 +174,41 @@ public class InputReceiver: InputTextDelegate {
             ? inlineReplaceRange(controller.directText, dr: controller.directRange!, client: sender)
             : NSRange(location: NSNotFound, length: 0)
 
-        // ① fail-safe: 인라인 조합을 추적 중이었는데(directRange != nil) 그 위치를
-        // 잃었고(replaceRange == NSNotFound: 검증·backtrack 모두 실패), 새로 조합할
-        // 글자가 없다면(composedString empty = 커밋/종료) — 이때 combined은 이미 인라인
-        // 으로 문서에 들어가 있는 글자(directText)의 마무리일 뿐이다. 위치를 못 찾는
-        // 상태에서 append하면 그 글자가 중복된다(예: 커밋 시 "안녕" → "안녕녕"). 따라서
-        // 삽입을 건너뛰고 추적만 비운다(문서는 이미 올바른 최종 텍스트를 담고 있음).
+        // ① fail-safe (PHASE 1): 추적 중이던 directRange의 위치를 잃었고(replaceRange ==
+        // NSNotFound: 검증·backtrack 모두 실패) 새로 조합할 글자가 없으면(composedString
+        // empty = 커밋/종료) combined은 이미 인라인으로 들어가 있는 글자(directText)의
+        // 마무리일 뿐이다. 위치를 못 찾는 상태에서 append하면 중복되므로(예: "안녕" →
+        // "안녕녕") 삽입을 건너뛰고 추적만 비운다.
         if controller.directRange != nil, replaceRange.location == NSNotFound, composedString.isEmpty {
             controller.directRange = nil
             controller.directText = ""
+            controller.expectedCaret = nil
             return
         }
+
+        // 검증 실패 시 누수 구간 산정에 필요하므로 직전 directText를 미리 저장한다.
+        let priorDirectText = controller.directText
 
         if !combined.isEmpty || replaceRange.location != NSNotFound {
             sender.insertText(combined, replacementRange: replaceRange)
         }
 
+        // PHASE 2 ③(B층): 실제 치환을 시도한(replaceRange != NSNotFound) 비어 있지 않은
+        // 삽입이라면, caret 착지로 제자리 치환이 실제 일어났는지 검증한다. append-only
+        // 앱(Word 등)은 replacementRange를 무시하고 append하므로 caret이 기대보다
+        // 오른쪽에 남는다. 위반이면 그 클라이언트를 marked로 강등·학습한다.
+        if !combined.isEmpty, replaceRange.location != NSNotFound,
+           didInlineReplaceFail(combined: combined, replaceRange: replaceRange, client: sender)
+        {
+            demoteToMarked(priorDirectText: priorDirectText, replaceRange: replaceRange,
+                           combined: combined, client: sender)
+            return
+        }
+
         if composedString.isEmpty {
             controller.directRange = nil
             controller.directText = ""
+            controller.expectedCaret = nil
         } else {
             let baseLoc: Int
             if replaceRange.location != NSNotFound {
@@ -178,6 +220,7 @@ public class InputReceiver: InputTextDelegate {
                 if sel.location == NSNotFound {
                     controller.directRange = nil
                     controller.directText = ""
+                    controller.expectedCaret = nil
                     return
                 }
                 baseLoc = sel.location - (combined as NSString).length
@@ -185,7 +228,49 @@ public class InputReceiver: InputTextDelegate {
             controller.directRange = NSRange(location: baseLoc + (commitString as NSString).length,
                                              length: (composedString as NSString).length)
             controller.directText = composedString
+            // ② 기대 caret = 삽입한 combined의 끝 = directRange의 끝.
+            controller.expectedCaret = baseLoc + (combined as NSString).length
         }
+    }
+
+    /// 인라인 제자리 치환이 실패했는지(=클라이언트가 replacementRange를 무시하고
+    /// append했는지) caret 착지로 판정한다. 기대 caret = replaceRange.location +
+    /// combined 길이. selectedRange가 이와 다르면 실패로 본다. selectedRange를 알 수
+    /// 없으면(NSNotFound) 함부로 강등하지 않는다(false).
+    private func didInlineReplaceFail(combined: String, replaceRange: NSRange,
+                                      client sender: IMKTextInput & IMKUnicodeTextInput) -> Bool
+    {
+        let sel = sender.selectedRange()
+        if sel.location == NSNotFound {
+            return false
+        }
+        let expected = replaceRange.location + (combined as NSString).length
+        return sel.location != expected
+    }
+
+    /// append-only로 판명된 클라이언트를 marked로 강등·학습한다. 누수 구간은 best-effort로
+    /// 제거를 시도하고(append-only 앱은 이 삭제도 무시할 수 있어 1회성 잔상이 남을 수
+    /// 있음 — 깨끗함은 A층 시드 목록이 보장), 진행 중 조합을 marked로 즉시 재렌더한다.
+    private func demoteToMarked(priorDirectText: String, replaceRange: NSRange, combined: String,
+                               client sender: IMKTextInput & IMKUnicodeTextInput)
+    {
+        // 1) 학습 + 세션 강등.
+        if let bundleID = sender.bundleIdentifier(), !bundleID.isEmpty {
+            InputController.recordLearnedAppendOnly(bundleID: bundleID)
+        }
+        controller.useMarkedText = true
+
+        // 2) best-effort 누수 제거: [replaceRange.location, priorDirectText + combined].
+        let leakedLength = (priorDirectText as NSString).length + (combined as NSString).length
+        let leakedRange = NSRange(location: replaceRange.location, length: leakedLength)
+        sender.insertText("", replacementRange: leakedRange)
+
+        // 3) 인라인 추적 비우고 진행 중 조합을 marked로 재렌더(useMarkedText=true이므로
+        //    updateComposition이 marked 경로를 탄다).
+        controller.directRange = nil
+        controller.directText = ""
+        controller.expectedCaret = nil
+        updateComposition()
     }
 
     func input(event: InputEvent, client sender: IMKTextInput & IMKUnicodeTextInput) -> InputResult {
@@ -363,6 +448,7 @@ extension InputReceiver { // IMKStateSetting
                 // 추적 상태를 비워 새 모드가 깨끗하게 시작하도록 한다.
                 controller.directRange = nil
                 controller.directText = ""
+                controller.expectedCaret = nil
                 // 입력 모드가 실제로 바뀐 뒤 합성 표시 방식을 다시 계산해 캐시한다.
                 // (클라이언트 단위 캐시 — 키 입력마다 비공개 API를 질의하지 않는다.)
                 controller.useMarkedText = classifyComposition(LiveClientCapabilities(controller: controller, client: sender)) == .marked

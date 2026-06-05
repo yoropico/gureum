@@ -67,6 +67,17 @@
         @"range": NSStringFromRange(replacementRange),
     }];
 
+    // PHASE 2 테스트용 append-only 모사: replacementRange를 무시하고 문서 끝에 append한다.
+    // marked region이 없는 인라인 경로에서만 동작한다(marked 경로는 기존 동작 유지).
+    if (self.appendOnlyIgnoresReplacementRange && ![self hasMarkedText]) {
+        NSString *appended = [string isKindOfClass:[NSAttributedString class]] ? [(NSAttributedString *)string string] : string;
+        appended = appended ?: @"";
+        NSRange end = NSMakeRange(self.textStorage.length, 0);
+        [self.textStorage replaceCharactersInRange:end withString:appended];
+        [self setSelectedRange:NSMakeRange(self.textStorage.length, 0)];
+        return;
+    }
+
     // marked text가 활성화된 경우(marked 경로)에는 NSTextView의 내부 marked-region
     // 추적이 replacementRange를 정확히 처리하므로 기존 동작(super)을 그대로 유지한다.
     // 기존 한글/한자 테스트가 이 동작에 의존한다.

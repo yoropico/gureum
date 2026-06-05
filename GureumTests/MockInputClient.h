@@ -25,6 +25,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)resetRecordedInsertions;
 - (void)resetRecordedMarkedTexts;
 
+// When YES, insertText:replacementRange: IGNORES replacementRange and always appends
+// at the end of the document (simulating append-only apps like MS Word that ignore the
+// replacement range). Only affects the inline path (no active marked region). Used to
+// test PHASE 2 runtime learning. Default NO.
+@property (nonatomic, assign) BOOL appendOnlyIgnoresReplacementRange;
+
 @end
 
 NS_ASSUME_NONNULL_END

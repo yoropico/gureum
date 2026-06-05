@@ -60,6 +60,10 @@ public protocol ClientCapabilities {
     /// 잡히지 않는 Electron 앱을 잡기 위한 폴백이다.
     /// (DKST `runningApplicationUsesChromiumTextStack:` 대응)
     func usesChromiumFrameworkTextStack() -> Bool
+
+    /// 런타임 학습 결과: 이 클라이언트가 (사후 caret 검증으로) append-only로 판명됐는지.
+    /// 라이브 어댑터는 번들 식별자별 학습 캐시를 조회한다. (PHASE 2 B층)
+    func learnedAppendOnly() -> Bool
 }
 
 public extension ClientCapabilities {
@@ -68,6 +72,9 @@ public extension ClientCapabilities {
 
     /// 기본값: 프레임워크 스캔 미수행. (P1 스텁/구형 conformer 호환)
     func usesChromiumFrameworkTextStack() -> Bool { false }
+
+    /// 기본값: 학습된 바 없음. (P1 스텁/구형 conformer 호환)
+    func learnedAppendOnly() -> Bool { false }
 }
 
 // MARK: - Bundle-identifier engine classification (pure, DKST port)
@@ -138,6 +145,25 @@ public func bundleIdentifierUsesTerminalTextStack(_ bundleID: String) -> Bool {
         "dev.warp.Warp-Stable",
         "dev.warp.Warp",
         "co.zeit.hyper",
+    ])
+}
+
+/// 주어진 번들 식별자가 insertText의 replacementRange를 무시하고 append하는
+/// "append-only" 텍스트 스택(MS Office/한글 등)인지 판정한다.
+///
+/// 이런 앱은 인라인 직접 입력의 제자리 치환을 무시해 조합 글자를 중복시키므로
+/// 첫 키부터 marked로 강제한다. (PHASE 2 A층 시드 목록 — 알려진 앱 잔상 0 보장)
+/// 번들 식별자는 best-known 값이며 온디바이스 매트릭스에서 실측 확인한다.
+public func bundleIdentifierUsesAppendOnlyTextStack(_ bundleID: String) -> Bool {
+    bundleIdentifier(bundleID, matchesAnyPrefix: [
+        "com.microsoft.Word",
+        "com.microsoft.Excel",
+        "com.microsoft.Powerpoint",
+        "com.microsoft.Outlook",
+        "com.microsoft.onenote.mac",
+        "com.hancom.hoffice.hwp",
+        "com.hancom.hwp",
+        "com.haansoft.hwp",
     ])
 }
 
@@ -219,6 +245,20 @@ public func classifyComposition(_ caps: ClientCapabilities) -> CompositionMode {
     if let bundleID = caps.bundleIdentifier,
        bundleIdentifierUsesTerminalTextStack(bundleID)
     {
+        return .marked
+    }
+
+    // 6.5 append-only 시드 목록(MS Office/한글 등) → marked (A층). 알려진 앱은
+    //     첫 키부터 marked라 인라인 잔상이 전혀 없다.
+    if let bundleID = caps.bundleIdentifier,
+       bundleIdentifierUsesAppendOnlyTextStack(bundleID)
+    {
+        return .marked
+    }
+
+    // 6.6 런타임 학습으로 append-only로 판명된 클라이언트 → marked (B층). 시드에
+    //     없던 미지의 앱을 1회 학습 후 영구(세션) marked로 유지한다.
+    if caps.learnedAppendOnly() {
         return .marked
     }
 

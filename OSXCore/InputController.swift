@@ -64,12 +64,39 @@ public class InputController: IMKInputController {
     /// Per-client composition policy. Default true = safe (marked) fallback until computed.
     var useMarkedText = true
 
+    /// 직전 인라인 렌더 직후의 기대 caret(selectedRange.location), 즉 directRange의 끝.
+    /// ② 커서이동 무효화가 사용한다. nil = 추적 안 함.
+    var expectedCaret: Int?
+
     /// Port of DKST `directInputRangeIsCurrent:` — confirms `range` in `client` still holds `expected`.
     func directRangeIsCurrent(_ expected: String, range: NSRange, client: (IMKTextInput & IMKUnicodeTextInput)) -> Bool {
         if range.location == NSNotFound || range.length == 0 || expected.isEmpty || (expected as NSString).length != range.length {
             return false
         }
         return client.attributedSubstring(from: range)?.string == expected
+    }
+
+    // MARK: - PHASE 2 B층: 런타임 append-only 학습 캐시 (세션 한정)
+
+    /// 사후 검증에서 append-only로 판명된 클라이언트의 번들 식별자 집합. IMK 이벤트는
+    /// 메인 스레드에서만 처리되므로 별도 동기화 없이 안전하다. 프로세스 생명주기 한정
+    /// (영구화는 후속 과제).
+    private static var learnedAppendOnlyCache: Set<String> = []
+
+    /// 사후 검증에서 append-only로 판명된 클라이언트를 기록한다(빈 식별자는 무시).
+    static func recordLearnedAppendOnly(bundleID: String) {
+        guard !bundleID.isEmpty else { return }
+        learnedAppendOnlyCache.insert(bundleID)
+    }
+
+    /// 주어진 번들 식별자가 append-only로 학습됐는지.
+    static func isLearnedAppendOnly(bundleID: String) -> Bool {
+        learnedAppendOnlyCache.contains(bundleID)
+    }
+
+    /// 테스트 격리용: 학습 캐시를 비운다.
+    static func resetLearnedAppendOnlyCache() {
+        learnedAppendOnlyCache.removeAll()
     }
 
     override init!(server: IMKServer, delegate: Any!, client inputClient: Any) {
@@ -202,6 +229,14 @@ struct LiveClientCapabilities: ClientCapabilities {
             return false
         }
         return LiveClientCapabilities.chromiumTextStack(forBundleID: bundleID)
+    }
+
+    /// 런타임 학습 캐시에서 이 클라이언트(번들 식별자)가 append-only로 판명됐는지 조회.
+    func learnedAppendOnly() -> Bool {
+        guard let bundleID = bundleIdentifier, !bundleID.isEmpty else {
+            return false
+        }
+        return InputController.isLearnedAppendOnly(bundleID: bundleID)
     }
 
     /// 컨트롤러의 `textDocument` 프록시를 동적으로 얻는다.
@@ -415,6 +450,7 @@ public extension InputController { // IMKStateSetting
         }
         directRange = nil
         directText = ""
+        expectedCaret = nil
         super.deactivateServer(sender)
     }
 }
@@ -459,6 +495,7 @@ public extension InputController { // IMKServerInput
         receiver.cancelCompositionEvent()
         directRange = nil
         directText = ""
+        expectedCaret = nil
         super.cancelComposition()
     }
 
@@ -569,6 +606,7 @@ public extension InputController { // IMKServerInput
             // 비운다. (이게 빠져 있어 인라인 commit 중복 버그가 테스트에서 가려졌었다.)
             directRange = nil
             directText = ""
+            expectedCaret = nil
 
             let client = receiver.inputClient
             let view = receiver.inputClient as! NSTextView
