@@ -148,6 +148,18 @@ public class InputReceiver: InputTextDelegate {
             ? inlineReplaceRange(controller.directText, dr: controller.directRange!, client: sender)
             : NSRange(location: NSNotFound, length: 0)
 
+        // ① fail-safe: 인라인 조합을 추적 중이었는데(directRange != nil) 그 위치를
+        // 잃었고(replaceRange == NSNotFound: 검증·backtrack 모두 실패), 새로 조합할
+        // 글자가 없다면(composedString empty = 커밋/종료) — 이때 combined은 이미 인라인
+        // 으로 문서에 들어가 있는 글자(directText)의 마무리일 뿐이다. 위치를 못 찾는
+        // 상태에서 append하면 그 글자가 중복된다(예: 커밋 시 "안녕" → "안녕녕"). 따라서
+        // 삽입을 건너뛰고 추적만 비운다(문서는 이미 올바른 최종 텍스트를 담고 있음).
+        if controller.directRange != nil, replaceRange.location == NSNotFound, composedString.isEmpty {
+            controller.directRange = nil
+            controller.directText = ""
+            return
+        }
+
         if !combined.isEmpty || replaceRange.location != NSNotFound {
             sender.insertText(combined, replacementRange: replaceRange)
         }

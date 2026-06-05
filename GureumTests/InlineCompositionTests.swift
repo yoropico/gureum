@@ -305,6 +305,26 @@ class InlineRenderTests: XCTestCase {
         XCTAssertTrue(app.client.string.hasPrefix("안녕"), "doc should start with 안녕: \(app.client.string)")
     }
 
+    /// ① fail-safe: 커밋 시점에 directRange 검증이 실패(위치 분실)해도 append로
+    /// 중복을 만들면 안 된다. 실기(Finder/Word 등)에서 커밋 순간 directRangeIsCurrent가
+    /// 실패하는 상황을 모사: 문서를 바꿔 directRange가 더 이상 "녕"을 담지 않게 한다.
+    func testInlineCommitWithLostDirectRangeDoesNotAppend() {
+        Configuration.shared.inlineCompositionEnabled = true
+        app.controller.useMarkedText = false
+
+        app.inputKeys("dkssud") // 안녕 (녕 인라인 조합 중, directRange 추적)
+        // 커밋 직전 문서를 교체 → directRange 위치 검증·backtrack 모두 실패하게 만든다.
+        app.client.string = "ABC"
+        app.client.setSelectedRange(NSRange(location: 3, length: 0))
+
+        app.inputKey(.space) // 커밋
+
+        print("LostRangeCommit doc: \(app.client.string)")
+        // fail-safe면 위치를 못 찾을 때 append를 건너뛰므로 "녕"이 추가되지 않는다.
+        XCTAssertFalse(app.client.string.contains("녕"),
+                       "lost-range commit must not append the already-inline syllable: \(app.client.string)")
+    }
+
     /// 인라인 조합 중 입력 모드 전환 시 진행 중인 음절이 중복되지 않아야 한다.
     /// (인라인으로 "안" 조합 → 모드 전환 → "안안" 회귀 방지)
     func testInlineModeChangeMidCompositionDoesNotDuplicate() {
