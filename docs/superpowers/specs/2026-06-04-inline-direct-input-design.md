@@ -165,6 +165,17 @@ toggles later.
     for problems unconfirmed on-device. Decision: enable inline (now possible via the UI), dogfood, and
     only port these if real on-device problems appear. P1 already handles the reset cases its tests cover.
 
+- **Dogfood fix — terminals → marked** (2026-06-05): first on-device dogfooding (BCT, the user's native
+  Rust/winit terminal `com.yoropico.bct`) showed inline duplicates the LAST WORD on commit (space/enter):
+  terminals expect the standard marked-text composition flow, and inline-inserting the composing text then
+  committing re-emits it. Root cause = inline is incompatible with terminals. Fix: new pure classifier
+  `bundleIdentifierUsesTerminalTextStack` (BCT + Terminal.app/iTerm2/Ghostty/kitty/Alacritty/WezTerm/Warp/
+  Hyper) + a classifyComposition step 6 (terminal → marked). Verified on-device: duplication gone.
+  NOTE: BCT then showed garbled preedit (`?<0095><009c>…`) in MARKED mode — that is a BCT-side preedit
+  RENDER bug (byte- vs char-slicing of the winit `Ime::Preedit` string; commit path writes bytes to the PTY
+  and is fine), NOT a bomi bug (bomi's marked path is standard and works in every other app). Fix belongs in
+  claude-terminal (`src/app/event_loop/ime.rs` + its preedit renderer), out of scope for bomi.
+
 ## Attribution
 
 Port adapts logic from DKST (DINKIssTyle-IME-macOS), MIT © 2025 DINKIssTyle.

@@ -121,6 +121,26 @@ public func bundleIdentifierUsesChromiumMarkedTextPolicy(_ bundleID: String) -> 
     ])
 }
 
+/// 주어진 번들 식별자가 터미널(에뮬레이터) 계열인지 판정한다.
+///
+/// 터미널은 표준 marked-text 조합 흐름을 기대하므로 인라인 직접 입력과 호환되지
+/// 않는다(커밋 시 마지막 단어가 중복됨). 따라서 marked로 강제한다.
+public func bundleIdentifierUsesTerminalTextStack(_ bundleID: String) -> Bool {
+    bundleIdentifier(bundleID, matchesAnyPrefix: [
+        "com.yoropico.bct", // BCT (claude-terminal) — 사용자의 네이티브 Rust 터미널
+        "com.apple.Terminal",
+        "com.googlecode.iterm2",
+        "com.mitchellh.ghostty",
+        "net.kovidgoyal.kitty",
+        "org.alacritty",
+        "io.alacritty",
+        "com.github.wez.wezterm",
+        "dev.warp.Warp-Stable",
+        "dev.warp.Warp",
+        "co.zeit.hyper",
+    ])
+}
+
 /// 번들 식별자가 사용자 강제 marked 목록에 (대소문자 무시) 포함되는지 판정한다.
 ///
 /// macOS 번들 식별자는 대소문자를 구분하지 않으므로 비교도 대소문자 무시로 한다.
@@ -155,8 +175,9 @@ public func bundleIdentifierMatchesForcedMarkedList(_ bundleID: String, _ list: 
 /// 3. 사용자 강제 marked 목록에 있으면 → `.marked` (엔진 휴리스틱보다 우선).
 /// 4. WebKit 텍스트 스택이면 → `.inline`.
 /// 5. Chromium 텍스트 스택(번들 prefix 또는 프레임워크 스캔)이면 → `.marked`.
-/// 6. `caps.selectedRangeIsQueryable()`가 거짓이면 → `.marked` (안전 측면).
-/// 7. 그 외 기본값 → `.inline`.
+/// 6. 터미널 텍스트 스택이면 → `.marked` (인라인은 커밋 시 마지막 단어 중복).
+/// 7. `caps.selectedRangeIsQueryable()`가 거짓이면 → `.marked` (안전 측면).
+/// 8. 그 외 기본값 → `.inline`.
 public func classifyComposition(_ caps: ClientCapabilities) -> CompositionMode {
     // 1. 전역 "항상 marked text" 설정.
     if caps.alwaysMarkedGlobal {
@@ -193,11 +214,19 @@ public func classifyComposition(_ caps: ClientCapabilities) -> CompositionMode {
         return .marked
     }
 
-    // 6. selectedRange를 인라인 합성에 쓸 수 없으면 안전하게 marked.
+    // 6. 터미널 → marked. 터미널은 표준 marked 조합 흐름을 기대하므로 인라인은
+    //    커밋(스페이스/엔터) 시 마지막 단어를 중복시킨다.
+    if let bundleID = caps.bundleIdentifier,
+       bundleIdentifierUsesTerminalTextStack(bundleID)
+    {
+        return .marked
+    }
+
+    // 7. selectedRange를 인라인 합성에 쓸 수 없으면 안전하게 marked.
     if !caps.selectedRangeIsQueryable() {
         return .marked
     }
 
-    // 7. 기본값: 인라인 합성.
+    // 8. 기본값: 인라인 합성.
     return .inline
 }

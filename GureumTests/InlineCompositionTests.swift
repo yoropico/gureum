@@ -104,6 +104,18 @@ class InlineCompositionTests: XCTestCase {
         XCTAssertFalse(bundleIdentifierMatchesForcedMarkedList("", list))
     }
 
+    func testTerminalTextStackMatchesKnownTerminals() {
+        XCTAssertTrue(bundleIdentifierUsesTerminalTextStack("com.yoropico.bct")) // BCT (claude-terminal)
+        XCTAssertTrue(bundleIdentifierUsesTerminalTextStack("com.apple.Terminal"))
+        XCTAssertTrue(bundleIdentifierUsesTerminalTextStack("com.googlecode.iterm2"))
+        XCTAssertTrue(bundleIdentifierUsesTerminalTextStack("com.mitchellh.ghostty"))
+        XCTAssertTrue(bundleIdentifierUsesTerminalTextStack("net.kovidgoyal.kitty"))
+        XCTAssertTrue(bundleIdentifierUsesTerminalTextStack("org.alacritty"))
+        XCTAssertTrue(bundleIdentifierUsesTerminalTextStack("com.github.wez.wezterm"))
+        XCTAssertFalse(bundleIdentifierUsesTerminalTextStack("com.apple.Safari"))
+        XCTAssertFalse(bundleIdentifierUsesTerminalTextStack(""))
+    }
+
     // MARK: - P3: blocklist editor text <-> [String] normalization
 
     func testParseForcedMarkedListSplitsTrimsAndDropsBlanks() {
@@ -156,6 +168,21 @@ class InlineCompositionTests: XCTestCase {
         let caps = StubCaps(alwaysMarked: false, showsMarked: nil, selectableRange: true,
                             bundleID: "com.google.Chrome")
         XCTAssertEqual(classifyComposition(caps), .marked)
+    }
+
+    func testTerminalBundleReturnsMarked() {
+        // 터미널은 인라인 직접입력과 호환되지 않아(커밋 시 마지막 단어 중복) marked로 강제한다.
+        // showsMarked nil + selectable true이면 기본 inline이지만 터미널이면 marked여야 한다.
+        let caps = StubCaps(alwaysMarked: false, showsMarked: nil, selectableRange: true,
+                            bundleID: "com.yoropico.bct")
+        XCTAssertEqual(classifyComposition(caps), .marked)
+    }
+
+    func testTerminalAppleInlineSignalStillWins() {
+        // 터미널이라도 Apple 신호가 명시적으로 inline(false)을 주면 그 신호를 신뢰한다(체인 2단계 우선).
+        let caps = StubCaps(alwaysMarked: false, showsMarked: false, selectableRange: true,
+                            bundleID: "com.googlecode.iterm2")
+        XCTAssertEqual(classifyComposition(caps), .inline)
     }
 
     func testChromiumFrameworkScanReturnsMarked() {
